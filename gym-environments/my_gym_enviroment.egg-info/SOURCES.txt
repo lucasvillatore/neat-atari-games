@@ -1,0 +1,11 @@
+setup.py
+my_gym_enviroment.egg-info/PKG-INFO
+my_gym_enviroment.egg-info/SOURCES.txt
+my_gym_enviroment.egg-info/dependency_links.txt
+my_gym_enviroment.egg-info/top_level.txt
+src/__init__.py
+src/game.py
+src/space_invaders/__init__.py
+src/space_invaders/neat.py
+src/space_invaders/random_player.py
+src/space_invaders/training.py

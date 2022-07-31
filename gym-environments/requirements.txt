@@ -1,3 +1,4 @@
+neat-python
 gym
 gym[atari,accept-rom-license]==0.21.0
 gym[SpaceInvaders]

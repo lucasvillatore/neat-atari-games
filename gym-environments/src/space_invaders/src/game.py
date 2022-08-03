@@ -1,6 +1,6 @@
 import gym
 
-class GameGym:
+class   GameGym:
     def __init__(self, game=None, is_training=True, player=None):
         self.game = game
         self.is_training = is_training

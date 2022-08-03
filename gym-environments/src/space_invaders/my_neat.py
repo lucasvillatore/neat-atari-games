@@ -5,12 +5,14 @@ class NeatTraining:
         self.max_generations = parameters.generations
         self.actual_generation = 0
         self.configuration = configuration
-        self.neat = neat.Config(
+        
+        self.neat_configuration = neat.Config(
             neat.DefaultGenome,
             neat.DefaultReproduction,
-            neat.DefaultSpecieSet,
+            neat.DefaultSpeciesSet,
             neat.DefaultStagnation,
-            './configs/config-neat'
+            'configs/neat-config'
         )
+        
     def get_action(self):
         pass

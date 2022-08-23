@@ -1,4 +1,5 @@
 import os
+from random import randrange
 import gym
 import cv2
 import neat
@@ -7,14 +8,22 @@ import argparse
 import numpy as np
 import multiprocessing
 from datetime import datetime
+import pickle
 
 
 GAME = 'ALE/SpaceInvaders-v5'
 INPUTS = 100
-FRAME_ACTION = 5
+FRAME_ACTION = 3
 
 actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
 
+
+class Mock:
+    def activate(self, parameter):
+        tmp = []
+        for i in range(6):
+            tmp.append(randrange(60))
+        return tmp
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Training to play space invaders')
@@ -70,9 +79,10 @@ def init_game_information(n_state):
         "state": n_state, 
         "done": False, 
         'info': None, 
+        'coordinates': None,
     }
 
-def run_game(environment, network):
+def run_game(environment, network, log=False):
     n_state = environment.reset()
     game_information = init_game_information(n_state)
     
@@ -82,9 +92,11 @@ def run_game(environment, network):
             game_information["score"] += game_information["reward"]
             continue
         
-        coordinates = get_coordinates_from_image(game_information["state"])
-        ai_decision = network.activate(coordinates)
+        game_information["coordinates"] = get_coordinates_from_image(game_information["state"])
+        ai_decision = network.activate(game_information["coordinates"])
         action = np.argmax(ai_decision)
+        if log:
+            logger(action, True)
         game_information["state"], game_information["reward"], game_information["done"], game_information["info"] = environment.step(action)
         game_information["score"] += game_information["reward"]
 
@@ -98,8 +110,13 @@ def train_genome(genome, configuration):
 
     game_information = run_game(env, neat_network)
     
-    fitness = game_information['info']['lives'] * 20 + game_information['info']['episode_frame_number']*0.01
+    fitness = game_information['info']['lives'] * 20 + \
+                game_information['info']['episode_frame_number']*0.001 + \
+                5 * game_information['coordinates'].count(0) + \
+                game_information['score'] 
+                # -500 if game_information['info']['lives'] == 0 else 0
 
+    
     logger('Score: {}'.format(fitness), True)
 
     return fitness
@@ -132,7 +149,11 @@ if __name__ == '__main__':
     winner = population.run(pe.evaluate, 200)
     
     winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
+    # winner_net = Mock()
 
     env = gym.make(GAME, render_mode='human')
 
-    run_game(env, winner_net)
+    
+    run_game(env, winner_net, True)
+    with open('winner.pkl', 'wb') as output:
+        pickle.dump(winner, output, 1)

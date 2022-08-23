@@ -1,14 +1,14 @@
 import os
-from random import randrange
 import gym
 import cv2
 import neat
+import pickle
 import imutils
 import argparse
 import numpy as np
 import multiprocessing
+from random import randrange
 from datetime import datetime
-import pickle
 
 
 GAME = 'ALE/SpaceInvaders-v5'
@@ -104,18 +104,25 @@ def run_game(environment, network, log=False):
 
     return game_information
 
+def calculate_fitness(game_information):
+
+    fitness = 0
+
+    fitness += game_information['info']['lives'] * 20
+    fitness += game_information['info']['episode_frame_number']*0.001
+    fitness += 5 * game_information['coordinates'].count(0)
+    fitness += game_information['score']
+    # fitness +=  -500 if game_information['info']['lives'] == 0 else 0
+
+    return fitness
+
 def train_genome(genome, configuration):
     env = gym.make(GAME)
     neat_network = neat.nn.feed_forward.FeedForwardNetwork.create(genome, configuration)
 
     game_information = run_game(env, neat_network)
     
-    fitness = game_information['info']['lives'] * 20 + \
-                game_information['info']['episode_frame_number']*0.001 + \
-                5 * game_information['coordinates'].count(0) + \
-                game_information['score'] 
-                # -500 if game_information['info']['lives'] == 0 else 0
-
+    fitness = calculate_fitness(game_information)
     
     logger('Score: {}'.format(fitness), True)
 
@@ -131,8 +138,6 @@ def save_winner(winner)
         pickle.dump(winner, output, 1)
 
 if __name__ == '__main__':
-    # args = get_parameters()
-    
     neat_configuration = neat.Config(
             neat.DefaultGenome,
             neat.DefaultReproduction,

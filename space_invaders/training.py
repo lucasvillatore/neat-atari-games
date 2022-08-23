@@ -126,6 +126,10 @@ def logger(message, show = False):
         current_time = datetime.now()
         print("{} - {}".format(current_time, message))
     
+def save_winner(winner)
+    with open('winner.pkl', 'wb') as output:
+        pickle.dump(winner, output, 1)
+
 if __name__ == '__main__':
     # args = get_parameters()
     
@@ -151,9 +155,9 @@ if __name__ == '__main__':
     winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
     # winner_net = Mock()
 
+    save_winner(winner)
+
     env = gym.make(GAME, render_mode='human')
 
     
     run_game(env, winner_net, True)
-    with open('winner.pkl', 'wb') as output:
-        pickle.dump(winner, output, 1)

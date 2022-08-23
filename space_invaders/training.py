@@ -7,6 +7,9 @@ import gym
 import numpy as np
 from datetime import datetime
 
+GAME = 'SpaceInvaders-v0'
+actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
+
 def get_parameters():
     parser = argparse.ArgumentParser(description='Training to play space invaders')
     parser.add_argument('--generations', type=int, help='Number of generations', required=True)
@@ -15,10 +18,7 @@ def get_parameters():
     return args
 
 def train_genome(genome, configuration):
-    game = 'SpaceInvaders-v0'
-    env = gym.make(game)
-    actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
-    
+    env = gym.make(GAME)
     n_state = env.reset()
     done = False
     score = 0
@@ -51,6 +51,7 @@ def train_genome(genome, configuration):
     fitness = score
 
     logger('Score: {}'.format(fitness), True)
+    env.close()
     return fitness
 
 def logger(message, show = False):
@@ -81,5 +82,36 @@ if __name__ == '__main__':
     winner = population.run(pe.evaluate, 20)
     
     winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
+
+    env = gym.make(GAME, render_mode='human')
+    state = env.reset()
+    done = False
+
+    score = 0
+
+    height, width, channels = state.shape 
     
+    height = int(height * 50 / 100)
+    width = int(width * 50 / 100)
     
+    dim = (width, height)
+
+    while not done:
+        logger('Changing to gray')
+        img = cv2.cvtColor(n_state, cv2.COLOR_BGR2GRAY)
+        resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+        logger('After change')
+        
+        imgarray = np.ndarray.flatten(resized)
+        
+        logger('Activating network')
+        ai_decision = winner_net.activate(imgarray)
+        logger('After activate')
+        
+        action = np.argmax(ai_decision)
+        logger(f"Action: {actions[action]}")
+        
+        n_state, reward, done, info = env.step(action)
+        score += reward
+
+    logger('Score: {}'.format(score), True)

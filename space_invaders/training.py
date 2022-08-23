@@ -119,16 +119,16 @@ if __name__ == '__main__':
             neat.DefaultStagnation,
             'configs/neat-config'
     )
-    current_time = datetime.now()
+
     logger('Setting population', True)
     population = neat.Population(neat_configuration)
     population.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     population.add_reporter(stats)
     population.add_reporter(neat.Checkpointer(25))
-    current_time = datetime.now()
-    logger('Running train_genomes', True)
+
     pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), train_genome)
+    logger('Running train_genomes', True)
     winner = population.run(pe.evaluate, 200)
     
     winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)

@@ -138,31 +138,31 @@ def save_winner(winner)
         pickle.dump(winner, output, 1)
 
 if __name__ == '__main__':
-    neat_configuration = neat.Config(
-            neat.DefaultGenome,
-            neat.DefaultReproduction,
-            neat.DefaultSpeciesSet,
-            neat.DefaultStagnation,
-            'configs/neat-config'
-    )
+    if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
+        winner_net = Mock()
+    else:
+        neat_configuration = neat.Config(
+                neat.DefaultGenome,
+                neat.DefaultReproduction,
+                neat.DefaultSpeciesSet,
+                neat.DefaultStagnation,
+                'configs/neat-config'
+        )
 
-    logger('Setting population', True)
-    population = neat.Population(neat_configuration)
-    population.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    population.add_reporter(stats)
-    population.add_reporter(neat.Checkpointer(25))
+        logger('Setting population', True)
+        population = neat.Population(neat_configuration)
+        population.add_reporter(neat.StdOutReporter(True))
+        stats = neat.StatisticsReporter()
+        population.add_reporter(stats)
+        population.add_reporter(neat.Checkpointer(25))
 
-    pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), train_genome)
-    logger('Running train_genomes', True)
-    winner = population.run(pe.evaluate, 200)
-    
-    winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
-    # winner_net = Mock()
+        pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), train_genome)
+        logger('Running train_genomes', True)
+        winner = population.run(pe.evaluate, 200)
+        save_winner(winner)
+        
+        winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
 
-    save_winner(winner)
 
     env = gym.make(GAME, render_mode='human')
-
-    
     run_game(env, winner_net, True)

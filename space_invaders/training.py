@@ -171,4 +171,4 @@ if __name__ == '__main__':
 
 
     env = gym.make(GAME, render_mode='human')
-    run_game(env, winner_net, True)
+    run_game(env, winner_net)

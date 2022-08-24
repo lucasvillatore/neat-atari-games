@@ -3,6 +3,7 @@ import gym
 import cv2
 import neat
 import pickle
+import logging
 import imutils
 import argparse
 import numpy as np
@@ -17,6 +18,16 @@ FRAME_ACTION = 3
 
 actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
 
+
+logging.basicConfig(
+    format='%(levelname)s - %(asctime)s - %(message)s', 
+    level=logging.INFO
+)
+if 'LOG_LEVEL' in os.environ and os.environ['LOG_LEVEL'] == 'debug':
+    logging.basicConfig(
+        format='%(levelname)s - %(asctime)s - %(message)s', 
+        level=logging.DEBUG
+    )
 
 class Mock:
     def activate(self, parameter):
@@ -82,7 +93,7 @@ def init_game_information(n_state):
         'coordinates': None,
     }
 
-def run_game(environment, network, log=False):
+def run_game(environment, network):
     n_state = environment.reset()
     game_information = init_game_information(n_state)
     
@@ -95,8 +106,9 @@ def run_game(environment, network, log=False):
         game_information["coordinates"] = get_coordinates_from_image(game_information["state"])
         ai_decision = network.activate(game_information["coordinates"])
         action = np.argmax(ai_decision)
-        if log:
-            logger(action, True)
+
+        logging.debug("Action is {}".format(actions[action]))
+        
         game_information["state"], game_information["reward"], game_information["done"], game_information["info"] = environment.step(action)
         game_information["score"] += game_information["reward"]
 
@@ -124,16 +136,11 @@ def train_genome(genome, configuration):
     
     fitness = calculate_fitness(game_information)
     
-    logger('Score: {}'.format(fitness), True)
+    logging.info('Score: {}'.format(fitness))
 
     return fitness
 
-def logger(message, show = False):
-    if os.environ.get('debug', None) or show:
-        current_time = datetime.now()
-        print("{} - {}".format(current_time, message))
-    
-def save_winner(winner)
+def save_winner(winner):
     with open('winner.pkl', 'wb') as output:
         pickle.dump(winner, output, 1)
 
@@ -149,7 +156,7 @@ if __name__ == '__main__':
                 'configs/neat-config'
         )
 
-        logger('Setting population', True)
+        logging.info('Setting population')
         population = neat.Population(neat_configuration)
         population.add_reporter(neat.StdOutReporter(True))
         stats = neat.StatisticsReporter()
@@ -157,7 +164,7 @@ if __name__ == '__main__':
         population.add_reporter(neat.Checkpointer(25))
 
         pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), train_genome)
-        logger('Running train_genomes', True)
+        logging.info('Running train_genomes')
         winner = population.run(pe.evaluate, 200)
         save_winner(winner)
         

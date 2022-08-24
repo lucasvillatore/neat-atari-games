@@ -9,7 +9,6 @@ import argparse
 import numpy as np
 import multiprocessing
 from random import randrange
-from datetime import datetime
 
 
 GAME = 'ALE/SpaceInvaders-v5'

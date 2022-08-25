@@ -13,20 +13,27 @@ from random import randrange
 
 GAME = 'ALE/SpaceInvaders-v5'
 INPUTS = 100
-FRAME_ACTION = 3
+FRAME_ACTION = 5
+kernel = np.ones((4,4),np.uint8)
 
 actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
 
+frame = 0
 
-logging.basicConfig(
-    format='%(levelname)s - %(asctime)s - %(message)s', 
-    level=logging.INFO
-)
-if 'LOG_LEVEL' in os.environ and os.environ['LOG_LEVEL'] == 'debug':
+
+if ('LOG_LEVEL' in os.environ and os.environ['LOG_LEVEL'] == 'debug') or \
+    ('DEBUG' in os.environ and os.environ['DEBUG'] == 'true'):
     logging.basicConfig(
         format='%(levelname)s - %(asctime)s - %(message)s', 
-        level=logging.DEBUG
+        level=logging.DEBUG        
     )
+    logging.addLevelName(logging.DEBUG, levelName='DEBUG')
+else:
+    logging.basicConfig(
+        format='%(levelname)s - %(asctime)s - %(message)s', 
+        level=logging.INFO
+    )
+
 
 class Mock:
     def activate(self, parameter):
@@ -42,9 +49,9 @@ def get_parameters():
     
     return args
 
-def get_coordinates_from_image(state):
-    img = cv2.cvtColor(state, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(img, (5, 5), 0)
+def get_coordinates(state):
+    dilation = cv2.dilate(state,kernel,iterations = 1)
+    blurred = cv2.GaussianBlur(dilation, (5, 5), 0)
     thresh = cv2.threshold(blurred, 20, 255, cv2.THRESH_BINARY)[1]
 
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
@@ -63,7 +70,43 @@ def get_coordinates_from_image(state):
         except Exception as err:
             pass
 
+    return coordinates
 
+def get_monsters_coordinates(state):
+    monster_rgb = np.array([134, 134, 29])
+    monster_state = cv2.inRange(state, monster_rgb, monster_rgb)
+
+    monster_coordinates = get_coordinates(monster_state)
+
+    return monster_coordinates
+
+def get_shots_coordinates(state):
+    shot_rgb = np.array([142,142,142])
+    shots_state = cv2.inRange(state, shot_rgb, shot_rgb)
+
+    shots_coordinates = get_coordinates(shots_state)
+
+    return shots_coordinates
+
+def get_my_position_coordinates(state):
+    my_position_rgb = np.array([50, 132, 50])
+    my_position_state = cv2.inRange(state, my_position_rgb, my_position_rgb)
+
+    my_position_coordinates = get_coordinates(my_position_state)
+
+    return my_position_coordinates
+
+
+def get_coordinates_from_image(state):
+    monsters = get_monsters_coordinates(state)
+    shots = get_shots_coordinates(state)
+    my_position = get_my_position_coordinates(state)
+    
+    logging.debug("Monsters coordinates {}".format(monsters))
+    logging.debug("Shots coordinates {}".format(shots))
+    logging.debug("My position coordinates {}".format(my_position))
+
+    coordinates = my_position + shots + monsters 
     if len(coordinates) < INPUTS:
         for i in range(0, INPUTS - len(coordinates)):
             coordinates.append(0)
@@ -93,10 +136,12 @@ def init_game_information(n_state):
     }
 
 def run_game(environment, network):
-    n_state = environment.reset()
+    global frame
+    n_state = environment.reset(seed=randrange(10000))
     game_information = init_game_information(n_state)
     
     while not game_information["done"]:
+        frame += 1
         if not another_action_is_avaliable(game_information):
             game_information["state"], game_information["reward"], game_information["done"], game_information["info"] = environment.step(action)
             game_information["score"] += game_information["reward"]
@@ -128,7 +173,7 @@ def calculate_fitness(game_information):
     return fitness
 
 def train_genome(genome, configuration):
-    env = gym.make(GAME)
+    env = gym.make(GAME, frameskip=1)
     neat_network = neat.nn.feed_forward.FeedForwardNetwork.create(genome, configuration)
 
     game_information = run_game(env, neat_network)
@@ -145,6 +190,7 @@ def save_winner(winner):
 
 if __name__ == '__main__':
     if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
+        logging.debug("Using Mock network")
         winner_net = Mock()
     else:
         neat_configuration = neat.Config(
@@ -164,11 +210,11 @@ if __name__ == '__main__':
 
         pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), train_genome)
         logging.info('Running train_genomes')
-        winner = population.run(pe.evaluate, 200)
+        winner = population.run(pe.evaluate, 5)
         save_winner(winner)
         
         winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
 
 
-    env = gym.make(GAME, render_mode='human')
+    env = gym.make(GAME, render_mode="human", frameskip=1)
     run_game(env, winner_net)

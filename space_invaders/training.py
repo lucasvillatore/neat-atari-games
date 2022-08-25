@@ -12,10 +12,10 @@ from random import randrange
 
 
 GAME = 'ALE/SpaceInvaders-v5'
+FRAMESKIP=3
 INPUTS = 100
-FRAME_ACTION = 5
+FRAME_ACTION = 3
 kernel = np.ones((4,4),np.uint8)
-
 actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
 
 frame = 0
@@ -128,6 +128,7 @@ def init_game_information(n_state):
         "done": False, 
         'info': None, 
         'coordinates': {},
+        'actions': [],
     }
 
 def all_coordinates(coordinates):
@@ -165,6 +166,7 @@ def run_game(environment, network):
             all_coordinates(game_information["coordinates"])
         )
         action = np.argmax(ai_decision)
+        game_information["actions"].append(action)
 
         logging.debug("Action is {}".format(actions[action]))
         
@@ -180,23 +182,38 @@ def calculate_fitness(game_information):
     fitness = 0
 
     fitness += game_information['info']['lives'] * 20
-    fitness += game_information['info']['episode_frame_number']*0.001
-    fitness += game_information['score']
+    fitness += game_information['info']['episode_frame_number']*0.01
+    fitness += game_information['score']*0.1
     fitness += 10000 if len(game_information['coordinates']['monsters']) == 0 else 0
-
-    logging.info("Monsters que sobraram: {}".format(len(game_information['coordinates']['monsters']) / 2))
     
     return fitness
 
+def get_total_actions(game_actions):
+    
+    total_actions = {}
+    for id, action in actions.items():
+        total_actions[action] = game_actions.count(id)
+    
+    tmp = ""
+    for action, total in total_actions.items():
+        tmp += "{} - {} ".format(action, total)
+    
+    return tmp
 def train_genome(genome, configuration):
-    env = gym.make(GAME, frameskip=1)
+    env = gym.make(GAME, frameskip=FRAMESKIP)
     neat_network = neat.nn.feed_forward.FeedForwardNetwork.create(genome, configuration)
 
     game_information = run_game(env, neat_network)
     
     fitness = calculate_fitness(game_information)
     
-    logging.info('Score: {}'.format(fitness))
+    logging.info('Score: {} - Vidas Restantes: {} - Frames Vivo: {} - Monstros mortos: {}'.format(
+        fitness, 
+        game_information["info"]["lives"],
+        game_information['info']['episode_frame_number'],
+        36 - len(game_information["coordinates"]["monsters"]) / 2
+    ))
+    # logging.info("actions {}".format(get_total_actions(game_information["actions"])))
 
     return fitness
 
@@ -232,5 +249,5 @@ if __name__ == '__main__':
         winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
 
 
-    env = gym.make(GAME, render_mode="human", frameskip=1)
+    env = gym.make(GAME, render_mode="human", frameskip=FRAMESKIP)
     run_game(env, winner_net)

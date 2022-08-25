@@ -10,7 +10,6 @@ import numpy as np
 import multiprocessing
 from random import randrange
 
-
 GAME = 'ALE/SpaceInvaders-v5'
 INPUTS = 100
 FRAME_ACTION = 5
@@ -19,35 +18,6 @@ kernel = np.ones((4,4),np.uint8)
 actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
 
 frame = 0
-
-
-if ('LOG_LEVEL' in os.environ and os.environ['LOG_LEVEL'] == 'debug') or \
-    ('DEBUG' in os.environ and os.environ['DEBUG'] == 'true'):
-    logging.basicConfig(
-        format='%(levelname)s - %(asctime)s - %(message)s', 
-        level=logging.DEBUG        
-    )
-    logging.addLevelName(logging.DEBUG, levelName='DEBUG')
-else:
-    logging.basicConfig(
-        format='%(levelname)s - %(asctime)s - %(message)s', 
-        level=logging.INFO
-    )
-
-
-class Mock:
-    def activate(self, parameter):
-        tmp = []
-        for i in range(6):
-            tmp.append(randrange(60))
-        return tmp
-
-def get_parameters():
-    parser = argparse.ArgumentParser(description='Training to play space invaders')
-    parser.add_argument('--generations', type=int, help='Number of generations', required=True)
-    args = parser.parse_args()
-    
-    return args
 
 def get_coordinates(state):
     dilation = cv2.dilate(state,kernel,iterations = 1)
@@ -106,7 +76,12 @@ def get_coordinates_from_image(state):
     logging.debug("Shots coordinates {}".format(shots))
     logging.debug("My position coordinates {}".format(my_position))
 
-    return monsters, shots, my_position 
+    coordinates = my_position + shots + monsters 
+    if len(coordinates) < INPUTS:
+        for i in range(0, INPUTS - len(coordinates)):
+            coordinates.append(0)
+
+    return coordinates
 
 def is_first_action(game_information):
     return game_information["action"] is None or game_information["info"] is None
@@ -127,21 +102,8 @@ def init_game_information(n_state):
         "state": n_state, 
         "done": False, 
         'info': None, 
-        'coordinates': {},
+        'coordinates': None,
     }
-
-def all_coordinates(coordinates):
-    my_position = coordinates['my_position']
-    shots = coordinates['shots']
-    monsters = coordinates['monsters']
-    
-    all_coordinates = my_position + shots + monsters 
-    if len(all_coordinates) < INPUTS:
-        for i in range(0, INPUTS - len(all_coordinates)):
-            all_coordinates.append(0)
-
-    return all_coordinates
-
 
 def run_game(environment, network):
     global frame
@@ -155,15 +117,8 @@ def run_game(environment, network):
             game_information["score"] += game_information["reward"]
             continue
         
-        monsters, shots, my_position = get_coordinates_from_image(game_information["state"])
-
-        game_information['coordinates']['monsters'] = monsters
-        game_information['coordinates']['shots'] = shots
-        game_information['coordinates']['my_position'] = my_position
-
-        ai_decision = network.activate(
-            all_coordinates(game_information["coordinates"])
-        )
+        game_information["coordinates"] = get_coordinates_from_image(game_information["state"])
+        ai_decision = network.activate(game_information["coordinates"])
         action = np.argmax(ai_decision)
 
         logging.debug("Action is {}".format(actions[action]))
@@ -174,63 +129,17 @@ def run_game(environment, network):
     environment.close()
 
     return game_information
-
-def calculate_fitness(game_information):
-
-    fitness = 0
-
-    fitness += game_information['info']['lives'] * 20
-    fitness += game_information['info']['episode_frame_number']*0.001
-    fitness += game_information['score']
-    fitness += 10000 if len(game_information['coordinates']['monsters']) == 0 else 0
-
-    logging.info("Monsters que sobraram: {}".format(len(game_information['coordinates']['monsters']) / 2))
     
-    return fitness
-
-def train_genome(genome, configuration):
-    env = gym.make(GAME, frameskip=1)
-    neat_network = neat.nn.feed_forward.FeedForwardNetwork.create(genome, configuration)
-
-    game_information = run_game(env, neat_network)
-    
-    fitness = calculate_fitness(game_information)
-    
-    logging.info('Score: {}'.format(fitness))
-
-    return fitness
-
-def save_winner(winner):
-    with open('winner.pkl', 'wb') as output:
-        pickle.dump(winner, output, 1)
-
-if __name__ == '__main__':
-    if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
-        logging.debug("Using Mock network")
-        winner_net = Mock()
-    else:
-        neat_configuration = neat.Config(
-                neat.DefaultGenome,
-                neat.DefaultReproduction,
-                neat.DefaultSpeciesSet,
-                neat.DefaultStagnation,
-                'configs/neat-config'
-        )
-
-        logging.info('Setting population')
-        population = neat.Population(neat_configuration)
-        population.add_reporter(neat.StdOutReporter(True))
-        stats = neat.StatisticsReporter()
-        population.add_reporter(stats)
-        population.add_reporter(neat.Checkpointer(25))
-
-        pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), train_genome)
-        logging.info('Running train_genomes')
-        winner = population.run(pe.evaluate, 100)
-        save_winner(winner)
-        
-        winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
-
+neat_configuration = neat.Config(
+    neat.DefaultGenome,
+    neat.DefaultReproduction,
+    neat.DefaultSpeciesSet,
+    neat.DefaultStagnation,
+    'configs/neat-config'
+)
+with open("winner.pkl", "rb") as f:
+    winner = pickle.load(f)
+    winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
 
     env = gym.make(GAME, render_mode="human", frameskip=1)
     run_game(env, winner_net)

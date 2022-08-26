@@ -193,6 +193,7 @@ def run_game(environment, network):
         ai_decision = network.activate(
             all_coordinates(game_information["coordinates"])
         )
+        # logging.info(ai_decision)
         action = np.argmax(ai_decision)
         game_information["actions"].append(action)
 
@@ -212,7 +213,7 @@ def calculate_fitness(game_information):
 
     fitness += game_information['info']['lives'] * 20
     # fitness += -game_information['info']['episode_frame_number']*0.01
-    fitness += game_information['score']*0.1
+    fitness += game_information['score']*0.7
     fitness += 10000 if len(game_information['coordinates']['monsters']) == 0 else 0
     
     for lives in range(4):

@@ -7,12 +7,12 @@ reset_on_extinction   = False
 [DefaultGenome]
 # node activation options
 activation_default      = sigmoid
-activation_mutate_rate  = 0.0
+activation_mutate_rate  = 0.4
 activation_options      = sigmoid
 
 # node aggregation options
 aggregation_default     = sum
-aggregation_mutate_rate = 0.0
+aggregation_mutate_rate = 0.4
 aggregation_options     = sum
 
 # node bias options
@@ -22,7 +22,7 @@ bias_max_value          = 30.0
 bias_min_value          = -30.0
 bias_mutate_power       = 0.5
 bias_mutate_rate        = 0.7
-bias_replace_rate       = 0.1
+bias_replace_rate       = 0.3
 
 # genome compatibility options
 compatibility_disjoint_coefficient = 1.0
@@ -76,4 +76,4 @@ species_elitism      = 2
 
 [DefaultReproduction]
 elitism            = 2
-survival_threshold = 0.2
+survival_threshold = 0.5

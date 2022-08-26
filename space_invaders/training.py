@@ -129,6 +129,28 @@ def init_game_information(n_state):
         'info': None, 
         'coordinates': {},
         'actions': [],
+        "lives": [
+            {
+                "frames_alive": 0,
+                "quantity": 3,
+                "multiplier": 0.05
+            },
+            {
+                "frames_alive": 0,
+                "quantity": 2,
+                "multiplier": 0.03
+            },
+            {
+                "frames_alive": 0,
+                "quantity": 1,
+                "multiplier": 0.01
+            },
+            {
+                "frames_alive": 0,
+                "quantity": 0,
+                "multiplier": 0.00
+            },
+        ]
     }
 
 def all_coordinates(coordinates):
@@ -149,11 +171,17 @@ def run_game(environment, network):
     n_state = environment.reset(seed=randrange(10000))
     game_information = init_game_information(n_state)
     
+    number_of_lifes = 3
     while not game_information["done"]:
+        for lives in range(4):
+            if game_information['lives'][lives]['quantity'] == number_of_lifes:
+                game_information['lives'][lives]['frames_alive'] += 1
         frame += 1
         if not another_action_is_avaliable(game_information):
             game_information["state"], game_information["reward"], game_information["done"], game_information["info"] = environment.step(action)
             game_information["score"] += game_information["reward"]
+
+            number_of_lifes = game_information['info']['lives']
             continue
         
         monsters, shots, my_position = get_coordinates_from_image(game_information["state"])
@@ -172,6 +200,7 @@ def run_game(environment, network):
         
         game_information["state"], game_information["reward"], game_information["done"], game_information["info"] = environment.step(action)
         game_information["score"] += game_information["reward"]
+        number_of_lifes = game_information['info']['lives']
 
     environment.close()
 
@@ -182,9 +211,12 @@ def calculate_fitness(game_information):
     fitness = 0
 
     fitness += game_information['info']['lives'] * 20
-    fitness += game_information['info']['episode_frame_number']*0.01
+    # fitness += -game_information['info']['episode_frame_number']*0.01
     fitness += game_information['score']*0.1
     fitness += 10000 if len(game_information['coordinates']['monsters']) == 0 else 0
+    
+    for lives in range(4):
+        fitness += game_information['lives'][lives]['frames_alive'] * game_information['lives'][lives]['multiplier']
     
     return fitness
 
@@ -207,13 +239,13 @@ def train_genome(genome, configuration):
     
     fitness = calculate_fitness(game_information)
     
-    logging.info('Score: {} - Vidas Restantes: {} - Frames Vivo: {} - Monstros mortos: {}'.format(
+    logging.info('Score: {} - Vidas Restantes: {} - Frames Vivo: {} - Monstros mortos: {} - actions {}'.format(
         fitness, 
         game_information["info"]["lives"],
         game_information['info']['episode_frame_number'],
-        36 - len(game_information["coordinates"]["monsters"]) / 2
+        36 - len(game_information["coordinates"]["monsters"]) / 2,
+        get_total_actions(game_information["actions"])
     ))
-    # logging.info("actions {}".format(get_total_actions(game_information["actions"])))
 
     return fitness
 

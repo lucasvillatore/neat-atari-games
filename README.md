@@ -1,11 +1,9 @@
-preciso
+Instalação das dependências
 
-###TO DO
-armazenar as posições dos inimigos
-armazenar as posições dos tiros
-
-
-desenhar uma possível solução boa
+```bash
+cd space_invaders
+pip3 install -r requirements.txt
+```
 
 r    g   b
 142 142 142 - tiro

@@ -11,6 +11,7 @@ import multiprocessing
 from random import randrange
 
 
+GENERATIONS_DEFAULT = 100
 GAME = 'ALE/SpaceInvaders-v5'
 FRAMESKIP=3
 INPUTS = 100
@@ -44,7 +45,7 @@ class Mock:
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Training to play space invaders')
-    parser.add_argument('--generations', type=int, help='Number of generations', required=True)
+    parser.add_argument('--generations', type=int, help='Number of generations', required=False, default=GENERATIONS_DEFAULT)
     args = parser.parse_args()
     
     return args
@@ -211,13 +212,13 @@ def calculate_fitness(game_information):
 
     fitness = 0
 
-    fitness += game_information['info']['lives'] * 20
+    # fitness += game_information['info']['lives'] * 20
     # fitness += -game_information['info']['episode_frame_number']*0.01
-    fitness += game_information['score']*0.7
-    fitness += 10000 if len(game_information['coordinates']['monsters']) == 0 else 0
+    fitness += game_information['score']
+    # fitness += 10000 if len(game_information['coordinates']['monsters']) == 0 else 0
     
-    for lives in range(4):
-        fitness += game_information['lives'][lives]['frames_alive'] * game_information['lives'][lives]['multiplier']
+    # for lives in range(4):
+    #     fitness += game_information['lives'][lives]['frames_alive'] * game_information['lives'][lives]['multiplier']
     
     return fitness
 
@@ -232,6 +233,7 @@ def get_total_actions(game_actions):
         tmp += "{} - {} ".format(action, total)
     
     return tmp
+
 def train_genome(genome, configuration):
     env = gym.make(GAME, frameskip=FRAMESKIP)
     neat_network = neat.nn.feed_forward.FeedForwardNetwork.create(genome, configuration)
@@ -258,7 +260,13 @@ if __name__ == '__main__':
     if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
         logging.debug("Using Mock network")
         winner_net = Mock()
+        env = gym.make(GAME, render_mode="human", frameskip=FRAMESKIP)
+        run_game(env, winner_net)
+
     else:
+        parameters = get_parameters()
+        generations = parameters.generations
+
         neat_configuration = neat.Config(
                 neat.DefaultGenome,
                 neat.DefaultReproduction,
@@ -275,12 +283,8 @@ if __name__ == '__main__':
         population.add_reporter(neat.Checkpointer(25))
 
         pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), train_genome)
-        logging.info('Running train_genomes')
-        winner = population.run(pe.evaluate, 100)
+        logging.info('Running train_genomes {} generations'.format(generations))
+        winner = population.run(pe.evaluate, generations)
         save_winner(winner)
         
         winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
-
-
-    env = gym.make(GAME, render_mode="human", frameskip=FRAMESKIP)
-    run_game(env, winner_net)

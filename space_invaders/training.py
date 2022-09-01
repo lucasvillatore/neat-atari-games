@@ -66,8 +66,7 @@ def get_coordinates(state):
         try:
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
-            coordinates.append(cX)
-            coordinates.append(cY)
+            coordinates.append([cX,cY])
         except Exception as err:
             pass
 
@@ -159,17 +158,42 @@ def all_coordinates(coordinates):
     shots = coordinates['shots']
     monsters = coordinates['monsters']
     
-    all_coordinates = my_position + shots + monsters 
-    if len(all_coordinates) < INPUTS:
-        for i in range(0, INPUTS - len(all_coordinates)):
-            all_coordinates.append(0)
+    all_coordinates = np.zeros(int(160/4))
 
+
+    for monster in monsters:
+        # print(my_position[0][0])
+        # print(monster[0])
+        # print(abs(my_position[0][0] - monster[0]))
+        if abs(my_position[0][0] - monster[0]) <= 10:
+            for index in range(-2, 3):
+                if monster[0]/4 + index >= 0 and monster[0]/4 + index <= 160:
+                    # all_coordinates[monster[0] + index] += 1
+                    all_coordinates[int(monster[0]/4) + index] += 1
+    # print(all_coordinates)
+    # exit()
+    
+    # for shot in shots:
+    #     #  for index in range(-1, 2):
+    #     #     if shot[0] + index >= 0 and shot[0] + index <= 160:
+    #     #         all_coordinates[shot[0] + index] += 10
+    #     all_coordinates[int(shot[0]/4)] += 10
+
+    # for position in my_position:
+    #     # for index in range(-2, 4):
+    #     #     if position[0] + index >= 0 and position[0] + index <= 160:
+    #     #         all_coordinates[position[0] + index] += 30
+    #     all_coordinates[int(position[0]/4)] += 100
+
+    # print(all_coordinates)
+    # exit(0)
     return all_coordinates
 
 
 def run_game(environment, network):
     global frame
     n_state = environment.reset(seed=randrange(10000))
+
     game_information = init_game_information(n_state)
     
     number_of_lifes = 3
@@ -196,6 +220,11 @@ def run_game(environment, network):
         )
         # logging.info(ai_decision)
         action = np.argmax(ai_decision)
+        if action == 2:
+            action = 4
+        if action == 3:
+            action = 5
+
         game_information["actions"].append(action)
 
         logging.debug("Action is {}".format(actions[action]))
@@ -230,7 +259,7 @@ def get_total_actions(game_actions):
     
     tmp = ""
     for action, total in total_actions.items():
-        tmp += "{} - {} ".format(action, total)
+        tmp += "{}: {} - ".format(action, total)
     
     return tmp
 
@@ -246,7 +275,7 @@ def train_genome(genome, configuration):
         fitness, 
         game_information["info"]["lives"],
         game_information['info']['episode_frame_number'],
-        36 - len(game_information["coordinates"]["monsters"]) / 2,
+        36 - len(game_information["coordinates"]["monsters"]),
         get_total_actions(game_information["actions"])
     ))
 
@@ -260,7 +289,7 @@ if __name__ == '__main__':
     if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
         logging.debug("Using Mock network")
         winner_net = Mock()
-        env = gym.make(GAME, render_mode="human", frameskip=FRAMESKIP)
+        env = gym.make(GAME, frameskip=FRAMESKIP)
         run_game(env, winner_net)
 
     else:

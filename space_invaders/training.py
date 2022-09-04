@@ -157,13 +157,18 @@ def init_game_information(n_state):
     }
 
 def all_coordinates(coordinates):
-    my_position = coordinates['my_position']
-    shots = coordinates['shots']
-    monsters = coordinates['monsters']
+    my_position = np.array(coordinates['my_position'])
+    shots = np.array(coordinates['shots'])
+    monsters = np.array(coordinates['monsters'])
     
-    coordinates = my_position + shots + monsters
+    map_coordinates = []
 
-    return coordinates
+    map_coordinates = list(my_position.flatten()) + list(shots.flatten()) + list(monsters.flatten())
+
+    if len(map_coordinates) < 80:
+        map_coordinates = map_coordinates + [0] * int((80 - len(map_coordinates)))
+
+    return map_coordinates
 
 
 def run_game(environment, network):

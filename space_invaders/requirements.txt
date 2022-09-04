@@ -7,3 +7,4 @@ imutils
 numpy
 multiprocessing
 opencv-python
+graphviz

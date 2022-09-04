@@ -9,7 +9,7 @@ import argparse
 import numpy as np
 import multiprocessing
 from random import randrange
-
+from visualize import plot_species, draw_net, plot_stats
 
 GENERATIONS_DEFAULT = 100
 GAME = 'ALE/SpaceInvaders-v5'
@@ -18,7 +18,7 @@ INPUTS = 100
 FRAME_ACTION = 3
 kernel = np.ones((4,4),np.uint8)
 actions = {0:'NOOP', 1:'FIRE', 2:'RIGHT', 3:'LEFT', 4:'RIGHTFIRE', 5:'LEFTFIRE'}
-
+NOOP = 0
 frame = 0
 
 
@@ -203,6 +203,7 @@ def run_game(environment, network):
                 game_information['lives'][lives]['frames_alive'] += 1
         frame += 1
         if not another_action_is_avaliable(game_information):
+            action = NOOP
             game_information["state"], game_information["reward"], game_information["done"], game_information["info"] = environment.step(action)
             game_information["score"] += game_information["reward"]
 
@@ -289,7 +290,7 @@ if __name__ == '__main__':
     if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
         logging.debug("Using Mock network")
         winner_net = Mock()
-        env = gym.make(GAME, frameskip=FRAMESKIP)
+        env = gym.make(GAME, render_mode='human', frameskip=FRAMESKIP)
         run_game(env, winner_net)
 
     else:
@@ -316,4 +317,8 @@ if __name__ == '__main__':
         winner = population.run(pe.evaluate, generations)
         save_winner(winner)
         
-        winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)
+        draw_net(neat_configuration, winner,view=False,filename='./plots/nets2.svg')
+        plot_stats(stats, ylog=False, view=False,filename='./plots/avg_fitness1.svg')
+        plot_species(stats, view=False,filename='./plots/speciation1.svg')
+
+        # winner_net = neat.nn.FeedForwardNetwork.create(winner, neat_configuration)

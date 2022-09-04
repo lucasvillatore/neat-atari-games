@@ -94,6 +94,9 @@ def get_my_position_coordinates(state):
 
     my_position_coordinates = get_coordinates(my_position_state)
 
+    for coordinates in my_position_coordinates:
+        if coordinates[1] <= 20:
+            return coordinates
     return my_position_coordinates
 
 
@@ -158,36 +161,9 @@ def all_coordinates(coordinates):
     shots = coordinates['shots']
     monsters = coordinates['monsters']
     
-    all_coordinates = np.zeros(int(160/4))
+    coordinates = my_position + shots + monsters
 
-
-    for monster in monsters:
-        # print(my_position[0][0])
-        # print(monster[0])
-        # print(abs(my_position[0][0] - monster[0]))
-        if abs(my_position[0][0] - monster[0]) <= 10:
-            for index in range(-2, 3):
-                if monster[0]/4 + index >= 0 and monster[0]/4 + index <= 160:
-                    # all_coordinates[monster[0] + index] += 1
-                    all_coordinates[int(monster[0]/4) + index] += 1
-    # print(all_coordinates)
-    # exit()
-    
-    # for shot in shots:
-    #     #  for index in range(-1, 2):
-    #     #     if shot[0] + index >= 0 and shot[0] + index <= 160:
-    #     #         all_coordinates[shot[0] + index] += 10
-    #     all_coordinates[int(shot[0]/4)] += 10
-
-    # for position in my_position:
-    #     # for index in range(-2, 4):
-    #     #     if position[0] + index >= 0 and position[0] + index <= 160:
-    #     #         all_coordinates[position[0] + index] += 30
-    #     all_coordinates[int(position[0]/4)] += 100
-
-    # print(all_coordinates)
-    # exit(0)
-    return all_coordinates
+    return coordinates
 
 
 def run_game(environment, network):
@@ -219,7 +195,6 @@ def run_game(environment, network):
         ai_decision = network.activate(
             all_coordinates(game_information["coordinates"])
         )
-        # logging.info(ai_decision)
         action = np.argmax(ai_decision)
         if action == 2:
             action = 4

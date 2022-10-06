@@ -83,5 +83,5 @@ if __name__ == '__main__':
 
 
 
-    # save_winner(winner)
+    game_training.save_winner(winner)
     print(config)

@@ -68,7 +68,7 @@ if __name__ == '__main__':
     parameters = training_interface.get_parameters()
     
     game_instance = training_interface.get_game(parameters.game)
-    game_training = Training(game=game_training, generations=parameters.generations)
+    game_training = Training(game=game_instance, generations=parameters.generations)
     
     config = game_training.game.get_neat_configuration()
 

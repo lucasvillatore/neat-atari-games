@@ -2,7 +2,7 @@ import neat
 import multiprocessing
 import gym
 import pickle
-from pacman.pacman_training import Pacman
+from pacman.pacman import Pacman
 
 class Training:
 

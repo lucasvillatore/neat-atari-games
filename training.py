@@ -3,12 +3,22 @@ import multiprocessing
 import gym
 import pickle
 import argparse
+import os
+import logger
+import logging
+from dotenv import load_dotenv
 from demon_attack.demon_attack import DemonAttack
 from flappy_bird.flappy_bird import FlappyBird
 from montezuma_revenge.montezuma_revenge import MontezumaRevenge
 from pacman.pacman import Pacman
 from pong.pong import Pong
 from seaquest.seaquest import Seaquest
+
+
+load_dotenv()
+logger.load()
+
+GENERATIONS_DEFAULT = 100
 
 class Training:
     def __init__(self, game, generations):
@@ -31,7 +41,6 @@ class Training:
 
 class TrainingInterface:
     def __init__(self):
-        self.GENERATIONS_DEFAULT = 100
         self.games = {
             "demon_attack": DemonAttack(),
             "flappy_bird": FlappyBird(),
@@ -40,35 +49,31 @@ class TrainingInterface:
             "pong": Pong(),
             "seaquest": Seaquest(),
         }
-
-    def get_parameters(self):
-        choices = self.games.keys()
-
-        parser = argparse.ArgumentParser(description='Training to play space invaders')
-        parser.add_argument('--generations', type=int, help='Number of generations', required=False, default=self.GENERATIONS_DEFAULT)
-        parser.add_argument(
-            '--game', 
-            help='Game to training', 
-            required=True, 
-            choices=list(choices)
-        )
-        args = parser.parse_args()
-        return args
-    
-    def get_game(self, game):
-        try:
-            return self.games[game] 
-        except Exception as err:
-            print(str(err))
+        if 'GAME' in os.environ:
+            try:
+                self.game = self.games[os.environ['GAME']]
+            except Exception as err:
+                logging.error(str(err))
+                exit()
+        else:
+            logging.error("environment variable GAME is not setted")
             exit()
+
+        self.generations = GENERATIONS_DEFAULT
+        if 'GENERATIONS' in os.environ:
+            self.generations = int(os.environ['GENERATIONS'])
+    
+    
+    def get_game(self):
+        return self.game
 
 
 if __name__ == '__main__':
-    training_interface = TrainingInterface()
-    parameters = training_interface.get_parameters()
-    
-    game_instance = training_interface.get_game(parameters.game)
-    game_training = Training(game=game_instance, generations=parameters.generations)
+    training_interface = TrainingInterface()    
+    game_training = Training(
+        game=training_interface.get_game(), 
+        generations=training_interface.generations
+    )
     
     config = game_training.game.get_neat_configuration()
 
@@ -78,9 +83,9 @@ if __name__ == '__main__':
     population.add_reporter(stats)
     population.add_reporter(neat.Checkpointer(25))
 
+
     pe = neat.ParallelEvaluator(multiprocessing.cpu_count(), game_training.train)
     winner = population.run(pe.evaluate, game_training.generations)
-
 
 
     game_training.save_winner(winner)

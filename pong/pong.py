@@ -1,3 +1,5 @@
+from math import sqrt
+from time import sleep
 import neat
 import numpy as np
 from random import randrange
@@ -38,16 +40,17 @@ class Pong:
                 continue
             inputs = []
 
-            n_state = n_state[35:190, 0:160]
+            
             my_coordinates = self.get_my_position(n_state)
             ball_coordinates = self.get_ball_posittion(n_state)
+            distance = sqrt((my_coordinates[0] - ball_coordinates[0])** 2 + (my_coordinates[1] - ball_coordinates[1])** 2)
             
-            inputs = [my_coordinates[1]] + ball_coordinates
+            inputs = [my_coordinates[1]] + [ball_coordinates[1]] + [distance]
+            
             ai_decision = network.activate(inputs)
             action = np.argmax(ai_decision)
 
-            n_state, reward, done, info = env.step(action)
-
+            n_state, reward, done, info = env.step(action)   
             fitness += reward
 
         env.close()
@@ -58,6 +61,7 @@ class Pong:
         if self.my_rgb is None:
             self.set_my_rgb(state)
 
+        state = state[35:190, 0:160]
         my_position_rgb = np.array(self.my_rgb)
         my_position_state = cv2.inRange(state, my_position_rgb, my_position_rgb)
 
@@ -72,11 +76,13 @@ class Pong:
         self.my_rgb = state[105][143]
 
     def get_ball_posittion(self, state):
+        tmp = state[35:190, 0:160]
+
         ball_position_rgb = np.array(self.ball_rgb)
-        ball_position_state = cv2.inRange(state, ball_position_rgb, ball_position_rgb)
+        ball_position_state = cv2.inRange(tmp, ball_position_rgb, ball_position_rgb)
 
         coordinates = self.get_coordinates(ball_position_state)
-        
+
         if len(coordinates) > 0:
             return coordinates[0]
         return [0,0]
@@ -99,7 +105,7 @@ class Pong:
             try:
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                coordinates.append([cX,cY])
+                coordinates.append([cX,cY+35])
             except Exception as err:
                 pass
 

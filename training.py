@@ -31,7 +31,7 @@ class Training:
     def train(self, genome, configuration):
         env = gym.make(self.game.name, frameskip=self.game.frameskip)
         
-        neat_network = neat.nn.feed_forward.FeedForwardNetwork.create(genome, configuration)
+        neat_network = neat.nn.recurrent.RecurrentNetwork.create(genome, configuration)
 
         fitness = self.game.run_game(env, neat_network)
 

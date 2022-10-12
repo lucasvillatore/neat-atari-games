@@ -32,7 +32,9 @@ class Pong:
 
         done = False
         fitness = 0
-        while fitness < 10:
+        gol = 0
+        contra = 0
+        while contra != -10 and gol != 10:
             frames += 1
 
             if frames < 60:
@@ -52,8 +54,12 @@ class Pong:
 
             n_state, reward, done, info = env.step(action)   
             if reward > 0:
+                gol += 1
                 fitness += 1
 
+            if reward < 0:
+                contra -= 1
+                fitness -= 1
         env.close()
 
         return fitness 

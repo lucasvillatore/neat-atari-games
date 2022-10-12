@@ -32,7 +32,7 @@ class Pong:
 
         done = False
         fitness = 0
-        while -10 < fitness < 10:
+        while fitness < 10:
             frames += 1
 
             if frames < 60:
@@ -51,7 +51,8 @@ class Pong:
             action = np.argmax(ai_decision)
 
             n_state, reward, done, info = env.step(action)   
-            fitness += reward
+            if reward > 0:
+                fitness += 1
 
         env.close()
 

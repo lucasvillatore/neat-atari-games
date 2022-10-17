@@ -2,7 +2,7 @@ import neat
 
 class Pacman:
     def __init__(self, game='pacman'):
-        self.name = 'ALE/MsPacman-v5'
+        self.name = 'ALE/MsPacman-ram-v5'
         self.frameskip = 1
 
     def get_neat_configuration(self):
@@ -15,9 +15,3 @@ class Pacman:
         )
 
         return neat_configuration
-
-    def run_game(self, env, network):
-        return {} #todo
-
-    def calculate_fitness(self, game_information):
-        return 0 #todo

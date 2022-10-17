@@ -2,7 +2,7 @@ import neat
 
 class FlappyBird:
     def __init__(self, game='FlappyBird'):
-        self.name = 'FlappyBird-v0'
+        self.name = 'FlappyBird-ram-v0'
         self.frameskip = 1
 
     def get_neat_configuration(self):
@@ -15,9 +15,3 @@ class FlappyBird:
         )
 
         return neat_configuration
-
-    def run_game(self, env, network):
-        return {} #todo
-
-    def calculate_fitness(self, game_information):
-        return 0 #todo

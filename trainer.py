@@ -8,8 +8,9 @@ import pickle
 load_dotenv()
 
 class Config():
-    def __init__(self):
-        self.game = os.environ['GAME']
+    def __init__(self, game = os.environ['GAME'], config=os.environ['CONFIG_PATH']):
+        self.game = game
+        self.path = config
         self.generations = int(os.environ['GENERATIONS'])
         self.max_steps = int(os.environ['MAX_STEPS'])
         self.episodes = int(os.environ['EPISODES'])
@@ -30,7 +31,6 @@ def simulate_species(net, env, episodes=1, steps=5000):
             if done:
                 break
             cum_reward += reward
-        print(cum_reward)
         fitnesses.append(cum_reward)
 
     fitness = np.array(fitnesses).mean()
@@ -63,7 +63,7 @@ def replay(env, winner):
 
 def train_network(env):
     local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'gym_config')
+    config_path = os.path.join(local_dir, config.path)
     pop = population.Population(config_path)
 
     if config.checkpoint:
@@ -88,14 +88,14 @@ def train_network(env):
 
     save_winner(winner)
 
-    print('\nBest genome:\n{!s}'.format(winner))
-    replay(env, winner)
+    # print('\nBest genome:\n{!s}'.format(winner))
+    # replay(env, winner)
 
-
-config = Config()
-
-my_env = gym.make(config.game)
-
-if __name__ == '__main__':
-
+config = None
+my_env = None
+def run(game, path):
+    global config, my_env
+    config = Config(game=game, config=path)
+    my_env = gym.make(config.game)
+    gym.make(config.game)
     train_network(my_env)

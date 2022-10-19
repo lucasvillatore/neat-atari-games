@@ -13,9 +13,9 @@ if __name__ == '__main__':
 
 
         # {"game": "Pendulum-v1", "config": "./pendulum/configs/neat-config", 'folder': './pendulum'},
-        # {"game": "MountainCar-v0", "config": "./mountain_car/configs/neat-config", 'folder': './mountain_car'},
-        # {"game": "CartPole-v0", "config": "./cart_pole/configs/neat-config", 'folder': './cart_pole'},
-        # {"game": "Acrobot-v1", "config": "./acrobot/configs/neat-config", 'folder': './acrobot'},
+        {"game": "MountainCar-v0", "config": "./mountain_car/configs/neat-config", 'folder': './mountain_car'},
+        {"game": "CartPole-v0", "config": "./cart_pole/configs/neat-config", 'folder': './cart_pole'},
+        {"game": "Acrobot-v1", "config": "./acrobot/configs/neat-config", 'folder': './acrobot'},
     ]
 
 

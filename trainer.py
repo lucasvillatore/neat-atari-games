@@ -1,4 +1,4 @@
-from neat import nn, population, statistics, parallel
+from neat import nn, population, parallel
 from dotenv import load_dotenv
 import numpy as np
 import gym

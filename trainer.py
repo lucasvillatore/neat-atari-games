@@ -1,14 +1,17 @@
-import gym
-import os
-import numpy as np
 from neat import nn, population, statistics, parallel
 from dotenv import load_dotenv
-import pickle
+import numpy as np
+import gym
+import os
 
 load_dotenv()
 
+config = None
+environment = None
+game = None
+
 class Config():
-    def __init__(self, game = os.environ['GAME'], config=os.environ['CONFIG_PATH']):
+    def __init__(self, game, config):
         self.game = game
         self.path = config
         self.generations = int(os.environ['GENERATIONS'])
@@ -20,82 +23,80 @@ class Config():
 
 def simulate_species(net, env, episodes=1, steps=5000):
     fitnesses = []
-    for runs in range(episodes):
-        inputs = my_env.reset()
-        cum_reward = 0.0
-        for j in range(steps):
 
+    for runs in range(episodes):
+        inputs = environment.reset()
+        total_reward = 0.0
+        
+        for j in range(steps):
             outputs = net.serial_activate(inputs)
             action = np.argmax(outputs)
-            inputs, reward, done, _ = env.step(action)
+            inputs, reward, done, info = env.step(action)
+            total_reward += game.calculate_fitness(reward)
+
             if done:
                 break
-            cum_reward += reward
-        fitnesses.append(cum_reward)
+            
+        fitnesses.append(total_reward)
 
     fitness = np.array(fitnesses).mean()
+    
     print("Species fitness: %s" % str(fitness))
+    
     return fitness
-
-
-def worker_evaluate_genome(g):
-    net = nn.create_feed_forward_phenotype(g)
-    return simulate_species(net, my_env, config.episodes, config.max_steps)
 
 def evaluate_genome(g):
     net = nn.create_feed_forward_phenotype(g)
-    return simulate_species(net, my_env, config.episodes, config.max_steps)
+    
+    return simulate_species(net, environment, config.episodes, config.max_steps)
 
 def eval_fitness(genomes):
     for g in genomes:
         fitness = evaluate_genome(g)
         g.fitness = fitness
 
-def save_winner(winner):
-    with open('winner.pkl', 'wb') as output:
-       pickle.dump(winner, output, 1)
-
-def replay(env, winner):
-    winner_net = nn.create_feed_forward_phenotype(winner)
-    env = gym.make(config.game, render_mode="human")
-    for i in range(100):
-        simulate_species(winner_net, env, 1, config.max_steps)
-
-def train_network(env):
+def setup_population():
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, config.path)
     pop = population.Population(config_path)
 
     if config.checkpoint:
-        pop.load_checkpoint('checkpoint')
+        pop.load_checkpoint(game.folder +"/checkpoint")
+
+    return pop
+
+def run_trainer(trainer_population):
+    global environment
 
     if config.render:
-        env = gym.make(config.game, render_mode="human")
-        pop.run(eval_fitness, config.generations)
-    else:
-        pe = parallel.ParallelEvaluator(config.num_cores, worker_evaluate_genome)
-        pop.run(pe.evaluate, config.generations)
+        environment = gym.make(config.game, render_mode="human")
+        trainer_population.run(eval_fitness, config.generations)
+        return
+    
+    parallel_train = parallel.ParallelEvaluator(config.num_cores, evaluate_genome)
+    trainer_population.run(parallel_train.evaluate, config.generations)
 
-    pop.save_checkpoint("checkpoint")
+def train_network():
+    trainer_population = setup_population()
 
-    statistics.save_stats(pop.statistics)
-    statistics.save_species_count(pop.statistics)
-    statistics.save_species_fitness(pop.statistics)
+    run_trainer(trainer_population)
+    
+    game.save_checkpoint(trainer_population)
+    game.save_statistics(trainer_population)
+    game.save_winner(trainer_population)
+    
+    print('Number of evaluations: {0}'.format(trainer_population.total_evaluations))
 
-    print('Number of evaluations: {0}'.format(pop.total_evaluations))
+def replay(env, winner):
+    winner_net = nn.create_feed_forward_phenotype(winner)
+    env = gym.make(config.game, render_mode="human")
+    
+    simulate_species(winner_net, env, 1, config.max_steps)
 
-    winner = pop.statistics.best_genome()
-
-    save_winner(winner)
-
-    # print('\nBest genome:\n{!s}'.format(winner))
-    # replay(env, winner)
-
-config = None
-my_env = None
-def run(game, path):
-    global config, my_env
-    config = Config(game=game, config=path)
-    my_env = gym.make(config.game)
-    gym.make(config.game)
-    train_network(my_env)
+def run(game_instance):
+    global game, environment, config
+    config = Config(game=game_instance.name, config=game_instance.config)
+    environment = gym.make(config.game)
+    game = game_instance
+    
+    train_network()

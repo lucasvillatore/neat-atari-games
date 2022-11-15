@@ -12,14 +12,14 @@ if __name__ == '__main__':
 
     games = [
         Pacman(name="ALE/MsPacman-ram-v5", config= "./pacman/configs/neat-config",folder='./pacman') ,
-        Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien'),
-        SpaceInvaders(name="ALE/SpaceInvaders-ram-v5", config="./space_invaders/configs/neat-config", folder='./space_invaders'),
-        Assault(name="ALE/Assault-ram-v5", config="./assault/configs/neat-config", folder='./assault'),
+        # Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien'),
+        # SpaceInvaders(name="ALE/SpaceInvaders-ram-v5", config="./space_invaders/configs/neat-config", folder='./space_invaders'),
+        # Assault(name="ALE/Assault-ram-v5", config="./assault/configs/neat-config", folder='./assault'),
 
 
-        MountainCar(name="MountainCar-v0", config= "./mountain_car/configs/neat-config", folder='./mountain_car'),
-        CartPole(name="CartPole-v0", config= "./cart_pole/configs/neat-config", folder= './cart_pole'),
-        Acrobot(name="Acrobot-v1", config= "./acrobot/configs/neat-config", folder= './acrobot'),
+        # MountainCar(name="MountainCar-v0", config= "./mountain_car/configs/neat-config", folder='./mountain_car'),
+        # CartPole(name="CartPole-v0", config= "./cart_pole/configs/neat-config", folder= './cart_pole'),
+        # Acrobot(name="Acrobot-v1", config= "./acrobot/configs/neat-config", folder= './acrobot'),
     ]
 
     for game in games:

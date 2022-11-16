@@ -10,12 +10,12 @@ reproduction_type    = DefaultReproduction
 [phenotype]
 input_nodes          = 128
 hidden_nodes         = 0
-output_nodes         = 9
+output_nodes         = 18
 initial_connection   = unconnected
 max_weight           = +30
 min_weight           = -30
 feedforward          = 1
-activation_functions = sigmoid
+activation_functions = relu
 weight_stdev         = 1.0
 
 [genetic]

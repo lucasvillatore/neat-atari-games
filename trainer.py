@@ -19,7 +19,6 @@ class Config():
         self.episodes = int(os.environ['EPISODES'])
         self.render = bool(int(os.environ['RENDER']))
         self.num_cores = int(os.environ['NUM_CORES'])
-        self.checkpoint = bool(int(os.environ['CHECKPOINT']))
 
 def simulate_species(net, env, episodes=1, steps=5000):
     fitnesses = []
@@ -60,8 +59,9 @@ def setup_population():
     config_path = os.path.join(local_dir, config.path)
     pop = population.Population(config_path)
 
-    if config.checkpoint:
-        pop.load_checkpoint(game.folder +"/checkpoint")
+    if game.checkpoint is not None:
+        print("Checkpoint loaded")
+        pop.load_checkpoint(game.checkpoint)
 
     return pop
 
@@ -69,10 +69,10 @@ def run_trainer(trainer_population):
     global environment
 
     if config.render:
-        environment = gym.make(config.game, render_mode="human")
+        environment = gym.make(config.game, render_mode="human", full_action_space=True)
         trainer_population.run(eval_fitness, config.generations)
         return
-    
+
     parallel_train = parallel.ParallelEvaluator(config.num_cores, evaluate_genome)
     trainer_population.run(parallel_train.evaluate, config.generations)
 
@@ -96,7 +96,7 @@ def replay(env, winner):
 def run(game_instance):
     global game, environment, config
     config = Config(game=game_instance.name, config=game_instance.config)
-    environment = gym.make(config.game)
+    environment = gym.make(config.game, full_action_space=True)
     game = game_instance
     
     train_network()

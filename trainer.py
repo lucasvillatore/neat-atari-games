@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import numpy as np
 import gym
 import os
+import cv2 as cv
 
 load_dotenv()
 
@@ -28,6 +29,7 @@ def simulate_species(net, env, episodes=1, steps=5000):
         total_reward = 0.0
         
         for j in range(steps):
+            cv.imshow("teste", inputs)
             outputs = net.serial_activate(inputs)
             action = np.argmax(outputs)
             inputs, reward, done, info = env.step(action)
@@ -96,7 +98,7 @@ def replay(env, winner):
 def run(game_instance):
     global game, environment, config
     config = Config(game=game_instance.name, config=game_instance.config)
-    environment = gym.make(config.game, full_action_space=True)
+    environment = gym.make(config.game)
     game = game_instance
     
     train_network()

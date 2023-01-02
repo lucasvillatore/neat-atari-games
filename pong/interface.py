@@ -1,7 +1,7 @@
 from basic_interface import InterfaceGames
 
-class Acrobot(InterfaceGames):
 
+class Pong(InterfaceGames):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

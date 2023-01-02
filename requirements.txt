@@ -3,5 +3,6 @@ gym
 gym[atari,accept-rom-license]==0.21.0
 gym[all]
 numpy
-multiprocessing
 graphviz
+python-dotev
+opencv-python

@@ -4,19 +4,20 @@ from pacman.interface import Pacman
 from alien.interface import Alien
 from space_invaders.interface import SpaceInvaders
 from assault.interface import Assault
-from acrobot.interface import Acrobot
-from cart_pole.interface import CartPole
-from mountain_car.interface import MountainCar
+from pong.interface import Pong
+from breakout.interface import Breakout
 
 if __name__ == '__main__':
 
     games = [
-        Pacman(name="ALE/MsPacman-ram-v5", config= "./pacman/configs/neat-config",folder='./pacman') ,
-        Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien'),
+
+        Breakout(name="ALE/Breakout-ram-v5", config="./breakout/configs/neat-config", folder="./breakout"),
+        # Pacman(name="ALE/MsPacman-ram-v5", config= "./pacman/configs/neat-config",folder='./pacman') ,
+        # Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien'),
 
         
-        Pacman(name="ALE/MsPacman-ram-v5", config= "./pacman/configs/neat-config",folder='./pacman', checkpoint='./alien/checkpoint') ,
-        Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien', checkpoint='./pacman/checkpoint'),
+        # Pacman(name="ALE/MsPacman-ram-v5", config= "./pacman/configs/neat-config",folder='./pacman', checkpoint='./alien/checkpoint') ,
+        # Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien', checkpoint='./pacman/checkpoint'),
 
         # SpaceInvaders(name="ALE/SpaceInvaders-ram-v5", config="./space_invaders/configs/neat-config", folder='./space_invaders'),
         # Assault(name="ALE/Assault-ram-v5", config="./assault/configs/neat-config", folder='./assault'),

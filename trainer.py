@@ -1,6 +1,5 @@
 from neat import nn, population, parallel
 from dotenv import load_dotenv
-import numpy as np
 import gym
 import os
 import cv2 as cv
@@ -12,7 +11,6 @@ config = None
 environment = None
 game = None
 
-kernel = np.ones((2,2), np.uint8) 
 class Config():
     def __init__(self, game, config):
         self.game = game
@@ -29,24 +27,10 @@ def simulate_species(net, env, episodes=1, steps=5000):
 
     for runs in range(episodes):
         game_environment = environment.reset()
+
         total_reward = 0.0
-
-        
         for j in range(steps):
-            gray_image = cv.cvtColor(game_environment, cv.COLOR_BGR2GRAY)
-
-            _, bw_img = cv.threshold(gray_image, 40, 255, cv.THRESH_BINARY)
-
-            game_dilatado = cv.dilate(bw_img, kernel, iterations=1)
-            teste = game_dilatado.copy()
-
-
-            try:
-                outputs = net.serial_activate(teste)
-                action = np.argmax(outputs)
-            except Exception as err:
-                action = 0
-            game_environment, reward, done, info = env.step(action)
+            game_environment, reward, done, info = game.run_step(game_environment, net, env)
             total_reward += game.calculate_fitness(reward)
 
             if done:
@@ -84,7 +68,7 @@ def setup_population():
 def run_trainer(trainer_population):
     global environment
 
-    if config.render:
+    if int(config.num_cores) == 1:
         trainer_population.run(eval_fitness, config.generations)
         return
 

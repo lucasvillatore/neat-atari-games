@@ -20,15 +20,14 @@ class Breakout(InterfaceGames):
 
         running_game = cv.dilate(bw_img, kernel, iterations=1)
 
-        scale_percent = 20 # percent of original size
+        scale_percent = 10 # percent of original size
         width = int(160 * scale_percent / 100)
         height = int(210 * scale_percent / 100)
         dim = (width, height)
         resized = cv.resize(running_game, dim, interpolation = cv.INTER_AREA)
 
-        flatten = resized.flatten()
         try:
-            outputs = net.activate(flatten)
+            outputs = net.activate(resized.flatten())
             action = np.argmax(outputs)
         except Exception as err:
             action = 1

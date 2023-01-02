@@ -1,9 +1,9 @@
-from neat import nn, population, parallel
-from dotenv import load_dotenv
+import numpy as np
+import neat
 import gym
 import os
-import cv2 as cv
-import numpy as np
+from dotenv import load_dotenv
+from common import visualize
 
 load_dotenv()
 
@@ -44,50 +44,51 @@ def simulate_species(net, env, episodes=1, steps=5000):
     
     return fitness
 
-def evaluate_genome(g):
-    net = nn.create_feed_forward_phenotype(g)
+def worker_genome(genome, config_neat):
+    net = neat.nn.FeedForwardNetwork.create(genome, config_neat)
     
     return simulate_species(net, environment, config.episodes, config.max_steps)
 
-def eval_fitness(genomes):
-    for g in genomes:
-        fitness = evaluate_genome(g)
-        g.fitness = fitness
+def eval_fitness(genomes, config):
+    for genome_id, genome in genomes:
+        fitness = worker_genome(genome, config)
+        genome.fitness = fitness
 
-def setup_population():
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, config.path)
-    pop = population.Population(config_path)
+
+def running_in_multiples_cores():
+    return int(config.num_cores) == 1
+
+def run_trainer(trainer_population):
+    if running_in_multiples_cores:
+        return trainer_population.run(eval_fitness, config.generations)
+
+    parallel_train = neat.parallel.ParallelEvaluator(config.num_cores, worker_genome)
+    return trainer_population.run(parallel_train.evaluate, config.generations)
+
+def train_network():
+    config_neat = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                        neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                        config.path)
+
+    pop = neat.Population(config_neat)
 
     if game.checkpoint is not None:
         print("Checkpoint loaded")
         pop.load_checkpoint(game.checkpoint)
 
-    return pop
+    pop.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    pop.add_reporter(stats)
 
-def run_trainer(trainer_population):
-    global environment
+    winner = run_trainer(pop)
 
-    if int(config.num_cores) == 1:
-        trainer_population.run(eval_fitness, config.generations)
-        return
-
-    parallel_train = parallel.ParallelEvaluator(config.num_cores, evaluate_genome)
-    trainer_population.run(parallel_train.evaluate, config.generations)
-
-def train_network():
-    trainer_population = setup_population()
-
-    run_trainer(trainer_population)
+    node_names = {0: "noop", 1: "fire", 2: "right", 3: "left"}
+    visualize.draw_net(config_neat, winner, False, node_names=node_names)
+    visualize.plot_stats(stats, ylog=False, view=False)
+    visualize.plot_species(stats, view=False)
     
-    game.save_checkpoint(trainer_population)
-    game.save_statistics(trainer_population)
-    game.save_winner(trainer_population)
-    
-    print('Number of evaluations: {0}'.format(trainer_population.total_evaluations))
-
 def replay(env, winner):
-    winner_net = nn.create_feed_forward_phenotype(winner)
+    winner_net = neat.nn.create_feed_forward_phenotype(winner)
     env = gym.make(config.game, render_mode="human")
     
     simulate_species(winner_net, env, 1, config.max_steps)

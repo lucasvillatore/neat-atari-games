@@ -4,6 +4,7 @@ import numpy as np
 import gym
 import os
 import cv2 as cv
+import numpy as np
 
 load_dotenv()
 
@@ -11,6 +12,7 @@ config = None
 environment = None
 game = None
 
+kernel = np.ones((2,2), np.uint8) 
 class Config():
     def __init__(self, game, config):
         self.game = game
@@ -22,17 +24,29 @@ class Config():
         self.num_cores = int(os.environ['NUM_CORES'])
 
 def simulate_species(net, env, episodes=1, steps=5000):
+    global environment
     fitnesses = []
 
     for runs in range(episodes):
-        inputs = environment.reset()
+        game_environment = environment.reset()
         total_reward = 0.0
+
         
         for j in range(steps):
-            cv.imshow("teste", inputs)
-            outputs = net.serial_activate(inputs)
-            action = np.argmax(outputs)
-            inputs, reward, done, info = env.step(action)
+            gray_image = cv.cvtColor(game_environment, cv.COLOR_BGR2GRAY)
+
+            _, bw_img = cv.threshold(gray_image, 40, 255, cv.THRESH_BINARY)
+
+            game_dilatado = cv.dilate(bw_img, kernel, iterations=1)
+            teste = game_dilatado.copy()
+
+
+            try:
+                outputs = net.serial_activate(teste)
+                action = np.argmax(outputs)
+            except Exception as err:
+                action = 0
+            game_environment, reward, done, info = env.step(action)
             total_reward += game.calculate_fitness(reward)
 
             if done:
@@ -71,7 +85,6 @@ def run_trainer(trainer_population):
     global environment
 
     if config.render:
-        environment = gym.make(config.game, render_mode="human", full_action_space=True)
         trainer_population.run(eval_fitness, config.generations)
         return
 
@@ -98,7 +111,12 @@ def replay(env, winner):
 def run(game_instance):
     global game, environment, config
     config = Config(game=game_instance.name, config=game_instance.config)
-    environment = gym.make(config.game)
+
+    if config.render:
+        environment = gym.make(config.game, render_mode="human")
+    else:
+        environment = gym.make(config.game)
+
     game = game_instance
     
     train_network()

@@ -15,11 +15,11 @@ initial_connection   = unconnected
 max_weight           = +30
 min_weight           = -30
 feedforward          = 1
-activation_functions = sigmoid
+activation_functions = relu
 weight_stdev         = 1.0
 
 [genetic]
-pop_size                = 1
+pop_size                = 20
 max_fitness_threshold   = 100000
 prob_add_conn = 0.988
 prob_add_node = 0.25

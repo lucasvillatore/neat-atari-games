@@ -16,14 +16,12 @@ class Breakout(InterfaceGames):
     def run_step(self, image, net, run_env):
         x, y, c = run_env.observation_space.shape
 
-        x = int(x/8)
-        y = int(y/8)
+        x = int(x/10)
+        y = int(y/10)
         ob = cv.resize(image, (x, y))
         ob = cv.cvtColor(ob, cv.COLOR_BGR2GRAY)
-        ob = np.reshape(ob, (x, y))
-
         flatten = ob.flatten()
-        
+
         try:
             outputs = net.activate(flatten)
             action = np.argmax(outputs)

@@ -1,4 +1,4 @@
-from basic_interface import InterfaceGames
+from common.basic_interface import InterfaceGames
 import numpy as np
 
 class Pacman(InterfaceGames):
@@ -16,7 +16,7 @@ class Pacman(InterfaceGames):
         if is_first_action:
             return 0
 
-        input_net = []
+        input_net = observation_space
 
         try:
             output = net.activate(input_net)

@@ -1,5 +1,5 @@
+from common.basic_interface import InterfaceGames
 import numpy as np
-from basic_interface import InterfaceGames
 
 class Pong(InterfaceGames):
     def __init__(self, **kwargs):
@@ -16,7 +16,7 @@ class Pong(InterfaceGames):
         if is_first_action:
             return 0
 
-        input_net = []
+        input_net = observation_space
 
         try:
             output = net.activate(input_net)

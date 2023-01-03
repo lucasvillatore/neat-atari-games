@@ -45,7 +45,7 @@ def simulate_species(net, env, episodes=1, steps=5000):
     return fitness
 
 def worker_genome(genome, config_neat):
-    net = neat.nn.FeedForwardNetwork.create(genome, config_neat)
+    net = neat.nn.recurrent.RecurrentNetwork.create(genome, config_neat)
     
     return simulate_species(net, environment, config.episodes, config.max_steps)
 

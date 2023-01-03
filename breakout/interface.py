@@ -14,22 +14,22 @@ class Breakout(InterfaceGames):
         return reward
 
     def run_step(self, image, net, run_env):
-        gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        x, y, c = run_env.observation_space.shape
 
-        _, bw_img = cv.threshold(gray_image, 40, 255, cv.THRESH_BINARY)
+        x = int(x/8)
+        y = int(y/8)
+        ob = cv.resize(image, (x, y))
+        ob = cv.cvtColor(ob, cv.COLOR_BGR2GRAY)
+        ob = np.reshape(ob, (x, y))
 
-        running_game = cv.dilate(bw_img, kernel, iterations=1)
-
-        scale_percent = 5 # percent of original size
-        width = int(160 * scale_percent / 100)
-        height = int(210 * scale_percent / 100)
-        dim = (width, height)
-        resized = cv.resize(running_game, dim, interpolation = cv.INTER_AREA)
-
-        # print(len(resized.flatten()))
+        flatten = ob.flatten()
+        
+        # print(len(flatten))
         try:
-            outputs = net.activate(resized.flatten())
-            action = np.argmax(outputs)
+            # outputs = net.activate(flatten)
+            # action = np.argmax(outputs)
+            pass
+            action = 1
         except Exception as err:
             action = 1
 

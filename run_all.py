@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     games = [
 
-        Breakout(name="ALE/Breakout-v5", config="./breakout/configs/neat-config", folder="./breakout"),
+        Breakout(name="Breakout-v4", config="./breakout/configs/neat-config", folder="./breakout"),
         # Pacman(name="ALE/MsPacman-ram-v5", config= "./pacman/configs/neat-config",folder='./pacman') ,
         # Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien'),
 

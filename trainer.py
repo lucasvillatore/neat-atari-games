@@ -4,6 +4,7 @@ import gym
 import os
 from dotenv import load_dotenv
 from common import visualize
+from atariari.benchmark.wrapper import AtariARIWrapper
 
 load_dotenv()
 
@@ -21,17 +22,28 @@ class Config():
         self.render = bool(int(os.environ['RENDER']))
         self.num_cores = int(os.environ['NUM_CORES'])
 
+def convert(o):
+    if isinstance(o, np.uint8): 
+        return int(o)  
+    raise TypeError
+
 def simulate_species(net, env, episodes=1, steps=5000):
     global environment
     fitnesses = []
-
+    
+    import json
+    actions = {0: 0, 1: 0, 2: 0, 3: 0}
     for runs in range(episodes):
         game_environment = environment.reset()
 
         total_reward = 0.0
         step = 0
+        info = {}
         for j in range(steps):
-            game_environment, reward, done, info = game.run_step(game_environment, net, env, step)
+            
+            action = game.run_step(game_environment, net, env, step, info)
+            actions[action] += 1
+            game_environment, reward, done, info = env.step(action)
             total_reward += game.calculate_fitness(reward)
 
             step += 1
@@ -42,6 +54,7 @@ def simulate_species(net, env, episodes=1, steps=5000):
 
     fitness = np.array(fitnesses).mean()
     
+    print(actions)
     print("Species fitness: %s" % str(fitness))
     
     return fitness
@@ -85,9 +98,9 @@ def train_network():
     winner = run_trainer(pop)
 
     node_names = {0: "noop", 1: "fire", 2: "right", 3: "left"}
-    visualize.draw_net(config_neat, winner, False, node_names=node_names)
-    visualize.plot_stats(stats, ylog=False, view=False)
-    visualize.plot_species(stats, view=False)
+    visualize.draw_net(config_neat, winner, True, node_names=node_names)
+    visualize.plot_stats(stats, ylog=False, view=True)
+    visualize.plot_species(stats, view=True)
     
 def replay(env, winner):
     winner_net = neat.nn.create_feed_forward_phenotype(winner)
@@ -100,9 +113,9 @@ def run(game_instance):
     config = Config(game=game_instance.name, config=game_instance.config)
 
     if config.render:
-        environment = gym.make(config.game, render_mode="human")
+        environment = AtariARIWrapper(gym.make(config.game, render_mode="human", obs_type="ram"))
     else:
-        environment = gym.make(config.game)
+        environment = AtariARIWrapper(gym.make(config.game, obs_type="ram"))
 
     game = game_instance
     

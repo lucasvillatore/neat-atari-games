@@ -1,47 +1,45 @@
-from basic_interface import InterfaceGames
-import cv2 as cv
 import numpy as np
-import random
-import math
-from common import visualize
+from basic_interface import InterfaceGames
 
 class Pong(InterfaceGames):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.actions = {}
 
-    def calculate_fitness(self, info):
+    def calculate_fitness(self, info, reward):
+        return reward
 
-        a = (info['labels']['ball_x'] - info['labels']['player_x'])**2
-        b = (info['labels']['ball_y'] - 190)**2
+    def get_action(self, observation_space, net, step, info):
+
+        is_first_action = step == 0
         
-        distancia = int(math.sqrt(a + b))
-        if abs(info['labels']['ball_x'] - info['labels']['player_x']) < 10 and distancia < 30:
-            return 2
+        if is_first_action:
+            return 0
 
-        return 0
-
-    def run_step(self, image, net, run_env, step, info):
-
-        if step == 0 or step % 3 != 0:
-            return 1
-        
-
-
-        tmp = [
-            info['labels']['player_x'],
-            info['labels']['ball_x'],
-            info['labels']['ball_y']
-        ]
+        input_net = []
 
         try:
-            output = net.activate(tmp)
+            output = net.activate(input_net)
             action = np.argmax(output)
         except Exception as err:
-            action = 1
+            action = 0
         
         return action
+        
+    def run(self, net, env, steps):
 
-    def draw_net(self, game, winner):
-        node_names = {0: 'NOOP', 1: 'FIRE', 2: 'LEFT', 3: 'RIGHT'}
-        visualize.draw_net(game.config, winner, True, node_names=node_names)
-        visualize.draw_net(game.config, winner, True, node_names=node_names, prune_unused=True)
+        observation_space = env.reset()
+        game_information = {}
+        total_reward = 0.0
+
+        for current_step in range(steps):
+            action = self.get_action(observation_space, net, current_step, game_information)
+            
+            observation_space, current_reward, done, game_information = env.step(action)
+
+            total_reward += self.calculate_fitness(game_information, current_reward)
+
+            if done:
+                break
+        
+        return total_reward

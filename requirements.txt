@@ -3,5 +3,7 @@ gym
 gym[atari,accept-rom-license]==0.21.0
 gym[all]
 numpy
-multiprocessing
 graphviz
+python-dotev
+opencv-python
+git+git://github.com/mila-iqia/atari-representation-learning.git

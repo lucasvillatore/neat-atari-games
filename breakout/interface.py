@@ -11,15 +11,20 @@ class Breakout(InterfaceGames):
         super().__init__(**kwargs)
         self.actions = {0: 0, 1: 0, 2: 0, 3: 0}
 
-    def calculate_fitness(self, reward):
+    def calculate_fitness(self, info):
 
-        return reward
+
+        if abs(info['labels']['ball_x'] - info['labels']['player_x']) < 5:
+            return 2
+
+        return 0
 
     def run_step(self, image, net, run_env, step, info):
 
-        if step == 0:
+        if step == 0 or step % 3 != 0:
             return 1
         
+
         a = (info['labels']['ball_x'] - info['labels']['player_x'])**2
         b = (info['labels']['ball_y'] - 190)**2
         
@@ -31,7 +36,7 @@ class Breakout(InterfaceGames):
             info['labels']['ball_x'],
             info['labels']['ball_y']
         ]
-        
+
         try:
             output = net.activate(tmp)
             action = np.argmax(output)

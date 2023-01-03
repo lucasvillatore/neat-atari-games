@@ -44,17 +44,17 @@ def simulate_species(net, env, episodes=1, steps=5000):
             action = game.run_step(game_environment, net, env, step, info)
             actions[action] += 1
             game_environment, reward, done, info = env.step(action)
-            total_reward += game.calculate_fitness(reward)
+            total_reward += game.calculate_fitness(info)
 
             step += 1
             if done:
                 break
-            
+        total_reward += info['labels']['score']
         fitnesses.append(total_reward)
 
     fitness = np.array(fitnesses).mean()
     
-    print(actions)
+    # print(actions)
     print("Species fitness: %s" % str(fitness))
     
     return fitness

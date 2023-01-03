@@ -29,10 +29,12 @@ def simulate_species(net, env, episodes=1, steps=5000):
         game_environment = environment.reset()
 
         total_reward = 0.0
+        step = 0
         for j in range(steps):
-            game_environment, reward, done, info = game.run_step(game_environment, net, env)
+            game_environment, reward, done, info = game.run_step(game_environment, net, env, step)
             total_reward += game.calculate_fitness(reward)
 
+            step += 1
             if done:
                 break
             

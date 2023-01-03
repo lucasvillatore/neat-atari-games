@@ -13,20 +13,22 @@ class Breakout(InterfaceGames):
 
         return reward
 
-    def run_step(self, image, net, run_env):
-        x, y, c = run_env.observation_space.shape
+    def run_step(self, image, net, run_env, step):
+        action = 1
+        if step % 5 == 0:
+            x, y, c = run_env.observation_space.shape
+            x = int(x/5)
+            y = int(y/5)
 
-        x = int(x/10)
-        y = int(y/10)
-        ob = cv.resize(image, (x, y))
-        ob = cv.cvtColor(ob, cv.COLOR_BGR2GRAY)
-        flatten = ob.flatten()
+            ob = cv.resize(image, (x, y))
+            ob = cv.cvtColor(ob, cv.COLOR_BGR2GRAY)
 
-        try:
-            outputs = net.activate(flatten)
-            action = np.argmax(outputs)
-        except Exception as err:
-            action = 1
+            flatten = ob.flatten()
+            try:
+                outputs = net.activate(flatten)
+                action = np.argmax(outputs)
+            except Exception as err:
+                action = 1
 
         return run_env.step(action)
 

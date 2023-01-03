@@ -24,12 +24,9 @@ class Breakout(InterfaceGames):
 
         flatten = ob.flatten()
         
-        # print(len(flatten))
         try:
-            # outputs = net.activate(flatten)
-            # action = np.argmax(outputs)
-            pass
-            action = 1
+            outputs = net.activate(flatten)
+            action = np.argmax(outputs)
         except Exception as err:
             action = 1
 

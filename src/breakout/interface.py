@@ -1,7 +1,6 @@
 import numpy as np
 from common.basic_interface import InterfaceGames
 
-kernel = np.ones((2,2), np.uint8) 
 class Breakout(InterfaceGames):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -11,7 +10,6 @@ class Breakout(InterfaceGames):
         return reward
 
     def get_action(self, observation_space, net, step, info):
-
         is_first_action = step == 0
         
         if is_first_action:

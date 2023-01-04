@@ -4,7 +4,7 @@ import gym
 import os
 from dotenv import load_dotenv
 from common import visualize
-from atariari.benchmark.wrapper import AtariARIWrapper
+from common.atariari.benchmark.wrapper import AtariARIWrapper
 
 load_dotenv()
 

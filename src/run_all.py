@@ -4,14 +4,15 @@ from trainer import run
 # from alien.interface import Alien
 # from space_invaders.interface import SpaceInvaders
 # from assault.interface import Assault
-# from pong.interface import Pong
+from pong.interface import Pong
 from breakout.interface import Breakout
 
 if __name__ == '__main__':
 
     games = [
 
-        Breakout(name="Breakout-v4", neat_config_path="./breakout/configs/neat-config", folder="./breakout"),
+        # Breakout(name="Breakout-v4", neat_config_path="./breakout/configs/neat-config", folder="./breakout"),
+        Pong(name='Pong-v4', neat_config_path='./pong/configs/neat-config', folder='./pong')
         # Pacman(name="ALE/MsPacman-ram-v5", config= "./pacman/configs/neat-config",folder='./pacman') ,
         # Alien(name="ALE/Alien-ram-v5", config="./alien/configs/neat-config", folder='./alien'),
 

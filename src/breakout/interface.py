@@ -15,7 +15,15 @@ class Breakout(InterfaceGames):
         if is_first_action:
             return 1
 
-        input_net = []
+        # input_net = [
+        #     info['labels']['ball_x'],
+        #     info['labels']['ball_y'],
+        #     info['labels']['player_x'],
+        #     info['labels']['blocks_hit_count'],
+        #     info['labels']['score']
+        # ]
+        
+        input_net = observation_space
 
         try:
             output = net.activate(input_net)

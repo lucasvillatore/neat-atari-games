@@ -182,7 +182,8 @@ atari_dict = {
                  ball_x=49,
                  ball_y=54,
                  enemy_score=13,
-                 player_score=14),
+                 player_score=14,
+                 ball_direction=58),
 
     "privateeye": dict(player_x=63,
                        player_y=86,

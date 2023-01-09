@@ -78,7 +78,7 @@ def eval_fitness(genomes, config):
         genome.fitness = fitness
 
 def worker_genome(genome, config_neat):
-    net = neat.nn.recurrent.RecurrentNetwork.create(genome, config_neat)
+    net = neat.nn.feed_forward.FeedForwardNetwork.create(genome, config_neat)
     
     return simulate_species(net, trainer_config.episodes, trainer_config.max_steps)
 

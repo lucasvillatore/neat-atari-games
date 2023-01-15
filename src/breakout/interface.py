@@ -15,13 +15,12 @@ class Breakout(InterfaceGames):
         if is_first_action:
             return 1
 
-        # input_net = [
-        #     info['labels']['ball_x'],
-        #     info['labels']['ball_y'],
-        #     info['labels']['player_x'],
-        #     info['labels']['blocks_hit_count'],
-        #     info['labels']['score']
-        # ]
+        input_net = [
+            info['labels']['player_x'],
+            info['labels']['player_y'],
+            info['labels']['ball_x'],
+            info['labels']['ball_y'],
+        ]
         
         input_net = observation_space
 
@@ -42,6 +41,7 @@ class Breakout(InterfaceGames):
         for current_step in range(steps):
             action = self.get_action(observation_space, net, current_step, game_information)
             
+            print(action)
             observation_space, current_reward, done, game_information = env.step(action)
 
             total_reward += self.calculate_fitness(game_information, current_reward)

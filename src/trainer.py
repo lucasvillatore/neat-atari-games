@@ -99,9 +99,10 @@ def simulate_species(net, episodes=1, steps=5000):
 
 
 if __name__ == '__main__':
-    from pong.interface import Pong
+    # from pong.interface import Pong
+    from breakout.interface import Breakout
 
-    game_instance = Pong(name='Pong-v4', neat_config_path='./pong/configs/neat-config', folder='./pong')
+    game_instance = Breakout(name='Breakout-v4', neat_config_path='./Breakout/configs/neat-config', folder='./breakout')
 
     trainer_config = TrainerConfig(game=game_instance.name, neat_config_path=game_instance.neat_config_path)
 
@@ -112,7 +113,7 @@ if __name__ == '__main__':
 
     game = game_instance
     
-    with open("winner.pkl", "rb") as f:
+    with open("./pong/winner.pkl", "rb") as f:
         winner = pickle.load(f)
     
     neat_configuration = neat.Config(
@@ -120,7 +121,7 @@ if __name__ == '__main__':
             neat.DefaultReproduction,
             neat.DefaultSpeciesSet, 
             neat.DefaultStagnation,
-            "./pong/configs/neat-config"
+            "./breakout/configs/neat-config"
     )
 
 

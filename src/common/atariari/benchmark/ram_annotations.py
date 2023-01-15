@@ -87,6 +87,7 @@ atari_dict = {
     "breakout": dict(ball_x=99,
                      ball_y=101,
                      player_x=72,
+                     player_y=55,
                      blocks_hit_count=77,
                      block_bit_map=range(30),  # see breakout bitmaps tab
                      score=84),  # 5 for each hit

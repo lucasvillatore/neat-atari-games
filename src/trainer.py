@@ -61,7 +61,7 @@ def train_network():
     visualize.plot_stats(stats, ylog=False)
     visualize.plot_species(stats)
 
-    with open('winner.pkl', 'wb') as output:
+    with open(f'{game_instance.folder}/winner.pkl', 'wb') as output:
         pickle.dump(winner, output, 1)
 
 def run_trainer(trainer_population):

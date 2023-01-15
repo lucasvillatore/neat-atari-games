@@ -47,9 +47,9 @@ def train_network():
 
     pop = neat.Population(neat_configuration)
 
-    if game.checkpoint is not None:
-        print("Checkpoint loaded")
-        pop.load_checkpoint(game.checkpoint)
+    # if game.checkpoint is not None:
+    #     print("Checkpoint loaded")
+    #     pop.load_checkpoint(game.checkpoint)
 
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
@@ -57,14 +57,12 @@ def train_network():
 
     winner = run_trainer(pop)
 
-    # visualize.draw_net(neat_configuration, winner)
-    # visualize.plot_stats(stats, ylog=False)
-    # visualize.plot_species(stats)
+    visualize.draw_net(neat_configuration, winner)
+    visualize.plot_stats(stats, ylog=False)
+    visualize.plot_species(stats)
 
     with open('winner.pkl', 'wb') as output:
         pickle.dump(winner, output, 1)
-    # if trainer_config.render:
-    #     pass
 
 def run_trainer(trainer_population):
     running_in_multiples_cores = int(trainer_config.num_cores) == 1
@@ -100,8 +98,35 @@ def simulate_species(net, episodes=1, steps=5000):
 
 
 
+if __name__ == '__main__':
+    from pong.interface import Pong
+
+    game_instance = Pong(name='Pong-v4', neat_config_path='./pong/configs/neat-config', folder='./pong')
+
+    trainer_config = TrainerConfig(game=game_instance.name, neat_config_path=game_instance.neat_config_path)
+
+    if trainer_config.render:
+        environment = AtariARIWrapper(gym.make(trainer_config.game, render_mode="human", obs_type="ram"))
+    else:
+        environment = AtariARIWrapper(gym.make(trainer_config.game, obs_type="ram"))
+
+    game = game_instance
+    
+    with open("winner.pkl", "rb") as f:
+        winner = pickle.load(f)
+    
+    neat_configuration = neat.Config(
+            neat.DefaultGenome, 
+            neat.DefaultReproduction,
+            neat.DefaultSpeciesSet, 
+            neat.DefaultStagnation,
+            "./pong/configs/neat-config"
+    )
 
 
+    pop = neat.Population(neat_configuration)
+
+    tmp = worker_genome(winner, neat_configuration)
 
 
 

@@ -9,8 +9,9 @@ class Pong(InterfaceGames):
         self.actions = {}
 
     def calculate_fitness(self, info, reward):
-
-        if abs(int(info['labels']['ball_y']) - int(info['labels']['player_y'])) < 10:
+        
+        # return reward
+        if abs(int(info['labels']['ball_y']) - int(info['labels']['player_y'])) < 5:
             return 1 + reward
         return 0
 

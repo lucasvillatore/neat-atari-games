@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from common import visualize
 from common.atariari.benchmark.wrapper import AtariARIWrapper
+import pickle
 
 load_dotenv()
 
@@ -56,12 +57,14 @@ def train_network():
 
     winner = run_trainer(pop)
 
-    visualize.draw_net(neat_configuration, winner)
-    visualize.plot_stats(stats, ylog=False)
-    visualize.plot_species(stats)
+    # visualize.draw_net(neat_configuration, winner)
+    # visualize.plot_stats(stats, ylog=False)
+    # visualize.plot_species(stats)
 
-    if trainer_config.render:
-        pass
+    with open('winner.pkl', 'wb') as output:
+        pickle.dump(winner, output, 1)
+    # if trainer_config.render:
+    #     pass
 
 def run_trainer(trainer_population):
     running_in_multiples_cores = int(trainer_config.num_cores) == 1

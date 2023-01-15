@@ -28,11 +28,6 @@ class Pong(InterfaceGames):
             info['labels']['ball_y'],
         ]
 
-        # print(info['labels']['ball_x'], info['labels']['player_x'])
-        # print(info['labels']['ball_y'], info['labels']['player_y'])
-        
-        # print()
-        # print()
         try:
             output = net.activate(input_net)
             action = np.argmax(output)

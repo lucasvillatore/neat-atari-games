@@ -1,19 +1,38 @@
-from common.basic_interface import InterfaceGames
 import numpy as np
-import time
-import cv2
+import math
 import random
-class Pong(InterfaceGames):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.actions = {}
+import time
 
-    def calculate_fitness(self, info, reward):
+class Pong():
+    def __init__(self, net = None, checkpoint = None):
+        self.actions = {}
+        self.name = 'Pong-v4'
+        self.neat_config_path = "./pong/configs/neat-config"
+        self.folder = "./pong"
+        self.net = net
+        self.checkpoint = checkpoint
+
+    def calculate_fitness(self, info, reward, last_ball_direction):
+        ball_direction = int(info['labels']['ball_direction'])
+
+        reward = 0
+        if ball_direction < 10: # se conseguiu rebater
+            reward = 0.05
+
+        if  self.get_distance(
+            int(info['labels']['player_x']),
+            int(info['labels']['player_y']),
+            int(info['labels']['ball_x']),
+            int(info['labels']['ball_y']),
+        ) < 20:
+            return 0.05 + reward
+
+        return reward
+
+    def get_distance(self, player_x, player_y, ball_x, ball_y):
+        distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2)) 
         
-        # return reward
-        if abs(int(info['labels']['ball_y']) - int(info['labels']['player_y'])) < 5:
-            return 1 + reward
-        return 0
+        return distance
 
     def get_action(self, observation_space, net, step, info):
 
@@ -22,11 +41,19 @@ class Pong(InterfaceGames):
         if is_first_action:
             return 0
 
+        my_player_distance_to_ball = self.get_distance(
+            int(info['labels']['player_x']),
+            int(info['labels']['player_y']),
+            int(info['labels']['ball_x']),
+            int(info['labels']['ball_y']),
+        )
+
+        ball_is_on_left = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
+
         input_net = [
-            info['labels']['player_x'],
-            info['labels']['player_y'],
-            info['labels']['ball_x'],
-            info['labels']['ball_y'],
+            my_player_distance_to_ball,
+            ball_is_on_left,
+            info['labels']['ball_direction']
         ]
 
         try:
@@ -36,6 +63,7 @@ class Pong(InterfaceGames):
             action = 0
         
         return action
+        return random.randint(0,5)
         
     def run(self, net, env, steps):
 
@@ -44,25 +72,24 @@ class Pong(InterfaceGames):
         total_reward = 0.0
 
         last_ball_direction = 0
+
+        action = 0
         for current_step in range(steps):
-            action = self.get_action(observation_space, net, current_step, game_information)
+            if current_step % 5 == 0:
+                action = self.get_action(observation_space, net, current_step, game_information)
+
             observation_space, current_reward, done, game_information = env.step(action)
-            
-            ball_direction = game_information['labels']['ball_direction']
 
-            if (last_ball_direction != 0 or ball_direction != 255) and ball_direction != last_ball_direction:
-                current_reward = 5
-            else:
-                current_reward = 0
+            last_ball_direction = game_information['labels']['ball_direction']
 
-            last_ball_direction = ball_direction
-
-            total_reward += self.calculate_fitness(game_information, current_reward)
+            total_reward += self.calculate_fitness(game_information, current_reward, last_ball_direction)
 
             if observation_space[14] == 21:
-                done = True
                 total_reward = 5000
+                break
+
             if done:
                 break
+
         
         return total_reward

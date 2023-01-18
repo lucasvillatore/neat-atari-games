@@ -6,6 +6,12 @@ from dotenv import load_dotenv
 from common import visualize
 from common.atariari.benchmark.wrapper import AtariARIWrapper
 import pickle
+from pong.interface import Pong
+from breakout.interface import Breakout
+
+
+
+
 
 load_dotenv()
 
@@ -45,23 +51,24 @@ def train_network():
             trainer_config.neat_config_path
     )
 
-    pop = neat.Population(neat_configuration)
-
-    # if game.checkpoint is not None:
-    #     print("Checkpoint loaded")
-    #     pop.load_checkpoint(game.checkpoint)
+    if game.checkpoint is None:
+        pop = neat.Population(neat_configuration)
+    else:
+        pop = neat.Checkpointer.restore_checkpoint(game.checkpoint)
+        print(f"Checkpoint {game.checkpoint} loaded")
 
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
+    pop.add_reporter(neat.Checkpointer(100, filename_prefix=f"{game.folder}/checkpoints/neat-checkpoint-"))
 
     winner = run_trainer(pop)
 
-    visualize.draw_net(neat_configuration, winner)
-    visualize.plot_stats(stats, ylog=False)
-    visualize.plot_species(stats)
+    visualize.draw_net(neat_configuration, winner, filename=f"{game.folder}/graphs/{game.name}-net")
+    visualize.plot_stats(stats, ylog=False, filename=f"{game.folder}/graphs/{game.name}-avg_fitness.svg")
+    visualize.plot_species(stats, filename=f"{game.folder}/graphs/{game.name}-speciation.svg")
 
-    with open(f'{game_instance.folder}/winner.pkl', 'wb') as output:
+    with open(f'{game.folder}/network/winner.pkl', 'wb') as output:
         pickle.dump(winner, output, 1)
 
 def run_trainer(trainer_population):
@@ -79,8 +86,14 @@ def eval_fitness(genomes, config):
         genome.fitness = fitness
 
 def worker_genome(genome, config_neat):
-    net = neat.nn.feed_forward.FeedForwardNetwork.create(genome, config_neat)
-    
+    if game.net is None:
+        net = neat.nn.feed_forward.FeedForwardNetwork.create(genome, config_neat)
+    else:
+        print(f"Loading {game.net}")
+        with open(game.net, 'rb') as f:
+            pickle_net = pickle.load(f)
+        net = neat.nn.feed_forward.FeedForwardNetwork.create(pickle_net, config_neat)
+
     return simulate_species(net, trainer_config.episodes, trainer_config.max_steps)
 
 def simulate_species(net, episodes=1, steps=5000):
@@ -96,45 +109,17 @@ def simulate_species(net, episodes=1, steps=5000):
     return fitness
 
 
+def get_game(name):
 
+    games_dict = {
+        'breakout': Breakout(),
+        'pong': Pong(),
+        # 'tennis': Tennis()
+    }
+
+    return games_dict[name] 
 
 if __name__ == '__main__':
-    # from pong.interface import Pong
-    from breakout.interface import Breakout
+    game_instance = get_game(os.environ['GAME'])
 
-    game_instance = Breakout(name='Breakout-v4', neat_config_path='./Breakout/configs/neat-config', folder='./breakout')
-
-    trainer_config = TrainerConfig(game=game_instance.name, neat_config_path=game_instance.neat_config_path)
-
-    if trainer_config.render:
-        environment = AtariARIWrapper(gym.make(trainer_config.game, render_mode="human", obs_type="ram"))
-    else:
-        environment = AtariARIWrapper(gym.make(trainer_config.game, obs_type="ram"))
-
-    game = game_instance
-    
-    with open("./pong/winner.pkl", "rb") as f:
-        winner = pickle.load(f)
-    
-    neat_configuration = neat.Config(
-            neat.DefaultGenome, 
-            neat.DefaultReproduction,
-            neat.DefaultSpeciesSet, 
-            neat.DefaultStagnation,
-            "./breakout/configs/neat-config"
-    )
-
-
-    pop = neat.Population(neat_configuration)
-
-    tmp = worker_genome(winner, neat_configuration)
-
-
-
-
-    
-# def replay(env, winner):
-#     winner_net = neat.nn.recurrent.RecurrentNetwork.create(winner)
-#     env = gym.make(config.game, render_mode="human", obs_type="ram")
-    
-#     simulate_species(winner_net, env, 1, config.max_steps)
+    run(game_instance)

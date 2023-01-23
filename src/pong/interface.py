@@ -53,7 +53,7 @@ class Pong():
         input_net = [
             my_player_distance_to_ball,
             ball_is_on_left,
-            info['labels']['ball_direction']
+            # info['labels']['ball_direction']
         ]
 
         try:
@@ -75,8 +75,7 @@ class Pong():
 
         action = 0
         for current_step in range(steps):
-            if current_step % 5 == 0:
-                action = self.get_action(observation_space, net, current_step, game_information)
+            action = self.get_action(observation_space, net, current_step, game_information)
 
             observation_space, current_reward, done, game_information = env.step(action)
 

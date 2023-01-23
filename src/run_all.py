@@ -6,13 +6,16 @@ from trainer import run
 # from assault.interface import Assault
 from pong.interface import Pong
 from breakout.interface import Breakout
+from tennis.interface import Tennis
+from skiing.interface import Skiing
 
 if __name__ == '__main__':
 
     games = [
-
-        # Pong(net='./pong/network/winner.pkl'),
-        Breakout(net='./pong/network/basic-100gen.pkl'),
+        Skiing(),
+        Breakout(),
+        Pong(),
+        Tennis()
     ]
 
     for game in games:

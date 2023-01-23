@@ -8,7 +8,8 @@ from common.atariari.benchmark.wrapper import AtariARIWrapper
 import pickle
 from pong.interface import Pong
 from breakout.interface import Breakout
-
+from tennis.interface import Tennis
+from skiing.interface import Skiing
 
 
 
@@ -34,9 +35,9 @@ def run(game_instance):
     trainer_config = TrainerConfig(game=game_instance.name, neat_config_path=game_instance.neat_config_path)
 
     if trainer_config.render:
-        environment = AtariARIWrapper(gym.make(trainer_config.game, render_mode="human", obs_type="ram"))
+        environment = AtariARIWrapper(gym.make(trainer_config.game, render_mode="human", obs_type="ram", full_action_space=True))
     else:
-        environment = AtariARIWrapper(gym.make(trainer_config.game, obs_type="ram"))
+        environment = AtariARIWrapper(gym.make(trainer_config.game, obs_type="ram", full_action_space=True))
 
     game = game_instance
     
@@ -64,6 +65,7 @@ def train_network():
 
     winner = run_trainer(pop)
 
+    stats.save_genome_fitness(filename=f"{game.folder}/statistics/fitness_history.csv")
     visualize.draw_net(neat_configuration, winner, filename=f"{game.folder}/graphs/{game.name}-net")
     visualize.plot_stats(stats, ylog=False, filename=f"{game.folder}/graphs/{game.name}-avg_fitness.svg")
     visualize.plot_species(stats, filename=f"{game.folder}/graphs/{game.name}-speciation.svg")
@@ -114,7 +116,8 @@ def get_game(name):
     games_dict = {
         'breakout': Breakout(),
         'pong': Pong(),
-        # 'tennis': Tennis()
+        'tennis': Tennis(),
+        'skiing': Skiing()
     }
 
     return games_dict[name] 

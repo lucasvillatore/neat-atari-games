@@ -20,13 +20,13 @@ class Breakout():
 
         if  self.get_distance(
             int(info['labels']['player_x']),
-            int(info['labels']['player_y']),
+            int(info['labels']['player_y'] - 32),
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
         ) < 20:
             return 0.05 + reward
 
-        return 0
+        return reward
 
     def get_action(self, observation_space, net, step, info):
         is_first_action = step == 0
@@ -39,12 +39,11 @@ class Breakout():
 
         my_player_distance_to_ball = self.get_distance(
             int(info['labels']['player_x']),
-            int(info['labels']['player_y']),
+            int(info['labels']['player_y']) - 32,
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
         )
 
-        print(my_player_distance_to_ball, ball_is_on_left)
         input_net = [
             my_player_distance_to_ball,
             ball_is_on_left
@@ -67,8 +66,7 @@ class Breakout():
         action = 1        
         for current_step in range(steps):
 
-            if current_step % 5 == 0:
-                action = self.get_action(observation_space, net, current_step, game_information)
+            action = self.get_action(observation_space, net, current_step, game_information)
 
             if current_step % 30 == 0:
                 action = 1

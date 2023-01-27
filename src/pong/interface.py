@@ -24,14 +24,15 @@ class Pong():
             int(info['labels']['player_y']),
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
-        ) < 20:
+        ) < 10:
             return 0.05 + reward
 
         return reward
 
     def get_distance(self, player_x, player_y, ball_x, ball_y):
-        distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2)) 
+        # distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2)) 
         
+        return abs(player_x - ball_x)
         return distance
 
     def get_action(self, observation_space, net, step, info):
@@ -53,7 +54,6 @@ class Pong():
         input_net = [
             my_player_distance_to_ball,
             ball_is_on_left,
-            # info['labels']['ball_direction']
         ]
 
         try:
@@ -63,7 +63,6 @@ class Pong():
             action = 0
         
         return action
-        return random.randint(0,5)
         
     def run(self, net, env, steps):
 

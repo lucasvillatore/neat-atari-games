@@ -228,11 +228,14 @@ atari_dict = {
                      divers_collected_count=62),
 
     "skiing": dict(player_x=25,
+                   player_y=26,
                    clock_m=104,
                    clock_s=105,
                    clock_ms=106,
                    score=107,
-                   object_y=range(87, 94)),  # object_y_1 is y position of whatever topmost object on the screen is
+                   object_y=range(87, 94),  # object_y_1 is y position of whatever topmost object on the screen is
+                   object_x=range(63, 70),  # object_y_1 is y position of whatever topmost object on the screen is
+                   object_type=range(80, 86)),  # object_y_1 is y position of whatever topmost object on the screen is
 
     "spaceinvaders": dict(invaders_left_count=17,
                           player_score=104,

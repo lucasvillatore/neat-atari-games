@@ -12,10 +12,10 @@ from skiing.interface import Skiing
 if __name__ == '__main__':
 
     games = [
-        Skiing(),
-        Breakout(),
-        Pong(),
-        Tennis()
+        Skiing(net='./pong/network/winner.pkl'),
+        # Breakout(net='./pong/network/winner.pkl'),
+        # Pong(),
+        # Tennis()
     ]
 
     for game in games:

@@ -20,11 +20,11 @@ class Breakout():
 
         if  self.get_distance(
             int(info['labels']['player_x']),
-            int(info['labels']['player_y'] - 32),
+            int(info['labels']['player_y']) - 32,
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
-        ) < 20:
-            return 0.05 + reward
+        ) < 30:
+            return 0.08 + reward
 
         return reward
 
@@ -35,18 +35,20 @@ class Breakout():
             return 1
 
 
-        ball_is_on_left = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
+        # ball_is_on_left = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
 
-        my_player_distance_to_ball = self.get_distance(
+        # my_player_distance_to_ball = self.get_distance(
+        #     int(info['labels']['player_x']),
+        #     int(info['labels']['player_y']) - 32,
+        #     int(info['labels']['ball_x']),
+        #     int(info['labels']['ball_y']),
+        # )
+
+        input_net = [
             int(info['labels']['player_x']),
             int(info['labels']['player_y']) - 32,
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
-        )
-
-        input_net = [
-            my_player_distance_to_ball,
-            ball_is_on_left
         ]
 
         try:
@@ -72,10 +74,11 @@ class Breakout():
                 action = 1
                 
             observation_space, current_reward, done, game_information = env.step(action)
-
             total_reward += self.calculate_fitness(game_information, current_reward)
 
+            
             if done:
                 break
         
+        total_reward += game_information['labels']['blocks_hit_count'] * 0.5 
         return total_reward

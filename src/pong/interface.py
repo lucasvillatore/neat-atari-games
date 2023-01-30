@@ -30,9 +30,9 @@ class Pong():
         return reward
 
     def get_distance(self, player_x, player_y, ball_x, ball_y):
-        # distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2)) 
+        distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2)) 
         
-        return abs(player_x - ball_x)
+        # return abs(player_x - ball_x)
         return distance
 
     def get_action(self, observation_space, net, step, info):

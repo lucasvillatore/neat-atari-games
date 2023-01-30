@@ -8,9 +8,9 @@ from skiing.interface import Skiing
 if __name__ == '__main__':
 
     games = [
-        Pong(),
+        # Pong(),
         # Skiing(),
-        # Breakout(),
+        Breakout(checkpoint='./pong/checkpoints/neat-checkpoint-293'),
         # Tennis(),
     ]
 

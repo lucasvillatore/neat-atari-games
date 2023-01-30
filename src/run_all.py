@@ -8,10 +8,10 @@ from skiing.interface import Skiing
 if __name__ == '__main__':
 
     games = [
-        Skiing(),
-        Breakout(),
-        Tennis(),
         Pong(),
+        # Skiing(),
+        # Breakout(),
+        # Tennis(),
     ]
 
     for game in games:

@@ -15,9 +15,9 @@ class Pong():
     def calculate_fitness(self, info, reward, last_ball_direction):
         ball_direction = int(info['labels']['ball_direction'])
 
-        reward = 0
+        # reward = 0
         if ball_direction < 10: # se conseguiu rebater
-            reward = 0.05
+            reward += 0.05
 
         if  self.get_distance(
             int(info['labels']['player_x']),
@@ -42,18 +42,20 @@ class Pong():
         if is_first_action:
             return 0
 
-        my_player_distance_to_ball = self.get_distance(
+        # my_player_distance_to_ball = self.get_distance(
+        #     int(info['labels']['player_x']),
+        #     int(info['labels']['player_y']),
+        #     int(info['labels']['ball_x']),
+        #     int(info['labels']['ball_y']),
+        # )
+
+        # ball_is_on_left = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
+
+        input_net = [
             int(info['labels']['player_x']),
             int(info['labels']['player_y']),
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
-        )
-
-        ball_is_on_left = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
-
-        input_net = [
-            my_player_distance_to_ball,
-            ball_is_on_left,
         ]
 
         try:

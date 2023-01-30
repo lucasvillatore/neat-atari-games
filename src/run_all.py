@@ -9,9 +9,9 @@ if __name__ == '__main__':
 
     games = [
         Skiing(),
-        # Breakout(net='./pong/network/winner.pkl'),
-        # Pong(),
-        # Tennis()
+        Breakout(),
+        Tennis(),
+        Pong(),
     ]
 
     for game in games:

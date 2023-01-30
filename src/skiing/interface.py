@@ -21,11 +21,14 @@ class Skiing():
             info['labels']['player_x'],
             flag_x
         )
+        
+        if reward < 0:
+            reward = 0 
 
         if distance < 5:
-            return 0.05
+            return 0.05 + reward  
 
-        return 0
+        return 0 + reward
 
     def get_distance(self, player_x, flag_x):
 

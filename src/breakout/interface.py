@@ -18,13 +18,11 @@ class Breakout():
 
     def calculate_fitness(self, info, reward):
 
-        if  self.get_distance(
-            int(info['labels']['player_x']),
-            int(info['labels']['player_y']) - 32,
-            int(info['labels']['ball_x']),
-            int(info['labels']['ball_y']),
-        ) < 30:
-            return 0.08 + reward
+        if abs(int(info['labels']['player_x']) - int(info['labels']['ball_x'])) < 10:
+            reward += 1 * 0.03
+        
+        if abs(int(info['labels']['player_y']) - 32 - int(info['labels']['ball_y'])) < 10:
+            reward += 1 * 0.05
 
         return reward
 
@@ -80,5 +78,6 @@ class Breakout():
             if done:
                 break
         
-        total_reward += game_information['labels']['blocks_hit_count'] * 0.5 
+        total_reward += game_information['labels']['blocks_hit_count'] * 0.5 + game_information['frame_number'] * 0.0001
+
         return total_reward

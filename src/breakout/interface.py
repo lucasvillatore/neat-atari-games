@@ -18,20 +18,21 @@ class Breakout():
 
     def calculate_fitness(self, info, reward):
 
+        player_y = 180
         if abs(int(info['labels']['player_x']) - int(info['labels']['ball_x'])) < 10:
             reward += 1 * 0.03
         
-        if abs(int(info['labels']['player_y']) - 32 - int(info['labels']['ball_y'])) < 10:
+        if abs(player_y - int(info['labels']['ball_y'])) < 15:
             reward += 1 * 0.05
 
         return reward
 
     def get_action(self, observation_space, net, step, info):
         is_first_action = step == 0
-
         if is_first_action:
             return 1
 
+        player_y = 180
 
         # ball_is_on_left = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
 
@@ -44,7 +45,7 @@ class Breakout():
 
         input_net = [
             int(info['labels']['player_x']),
-            int(info['labels']['player_y']) - 32,
+            player_y,
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
         ]

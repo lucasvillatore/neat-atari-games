@@ -17,29 +17,23 @@ class Skiing():
 
         flag_x, flag_y = self.get_flag_coordinates(observation_space)
 
-        distance = self.get_distance(
-            info['labels']['player_x'],
-            flag_x
-        )
-        
         if reward < 0:
-            reward = 0 
+            reward = 0
 
-        if distance < 5:
-            return 0.05 + reward  
+        if abs(int(info['labels']['player_x']) - flag_x) < 10:
+            reward += 1 * 0.05
+        if abs(int(info['labels']['player_y']) - flag_y) < 10:
+            reward += 1 * 0.02
+        
 
-        return 0 + reward
-
-    def get_distance(self, player_x, flag_x):
-
-        return abs(player_x - flag_x)
+        return reward
 
     def get_flag_coordinates(self, observation_space):
         index = 0
         for i in range(80, 86):
             if observation_space[i] == 0 or observation_space[i] == 7 :
                 flag_x = int(observation_space[64 + index])
-                flag_y = int(observation_space[88 + index])
+                flag_y = int(observation_space[87 + index])
 
                 if flag_y > 120:
                     continue
@@ -49,27 +43,28 @@ class Skiing():
                 flag_x = 0
                 flag_y = 0
         
-        return flag_x + 10, flag_y
+        return flag_x + 15, flag_y
 
 
     def get_action(self, observation_space, net, step, info):
 
-        is_first_action = step < 20
+        is_first_action = step < 15
         
         if is_first_action:
             return 0
 
         flag_x, flag_y = self.get_flag_coordinates(observation_space)
-        
-        distance = self.get_distance(
-            int(info['labels']['player_x']),
-            int(flag_x),
-        )
-        flag_is_in_left = 1 if flag_x > int(info['labels']['player_x']) else 0
 
+        print(f"flag ({flag_x},{flag_y})")
+        print(f"player ({int(info['labels']['player_x'])},{int(info['labels']['player_y'])})")
+
+        import time
+        time.sleep(0.5)
         input_net = [
-            distance,
-            flag_is_in_left
+            int(info['labels']['player_x']),
+            int(info['labels']['player_y']),
+            flag_x,
+            flag_y,
         ]
         try:
             output = net.activate(input_net)
@@ -78,9 +73,9 @@ class Skiing():
             action = 0
         
         if action in (2, 4, 7):
-            return 2
+            return 0
         if action in (3, 5, 8):
-            return 3
+            return 0
 
         return 0
         

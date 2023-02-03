@@ -11,13 +11,14 @@ class Tennis():
         self.checkpoint = checkpoint
 
     def calculate_fitness(self, info, reward):
-        if  self.get_distance(
-            int(info['labels']['player_x']),
-            int(info['labels']['player_y']),
-            int(info['labels']['ball_x']),
-            int(info['labels']['ball_y']),
-        ) < 20:
-            return 0.05 + reward
+
+        player_x, player_y = self.get_player_coordinates(info)
+
+        if abs(player_x - int(info['labels']['ball_x'])) < 15:
+            reward += 1 * 0.01
+
+        if abs(player_y - int(info['labels']['ball_y'])) < 15:
+            reward += 1 * 0.01
 
         return reward
 
@@ -25,23 +26,27 @@ class Tennis():
         distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2)) 
         
         return distance
+
+    def get_player_coordinates(self, info):
+        if info['labels']['player_field'] == 0: # troca de campo
+            return int(info['labels']['player_x']), int(info['labels']['player_y'])
+        return int(info['labels']['enemy_x']), int(info['labels']['enemy_y'])
+
     def get_action(self, observation_space, net, step, info):
 
         is_first_action = step == 0
-        
+
+
         if is_first_action:
             return 1
 
-        my_player_distance_to_ball = self.get_distance(
-            int(info['labels']['player_x']),
-            int(info['labels']['player_y']),
+        player_x, player_y = self.get_player_coordinates(info)
+        
+        input_net = [
+            player_x,
+            player_y,
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
-        )
-        ball_is_on_left = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
-        input_net = [
-            my_player_distance_to_ball,
-            ball_is_on_left
         ]
 
         try:
@@ -59,10 +64,7 @@ class Tennis():
         total_reward = 0.0
 
         for current_step in range(steps):
-            if current_step % 30 == 0:
-                action = 1
-            else:
-                action = self.get_action(observation_space, net, current_step, game_information)
+            action = self.get_action(observation_space, net, current_step, game_information)
 
             observation_space, current_reward, done, game_information = env.step(action)
 
@@ -70,6 +72,5 @@ class Tennis():
 
             if done:
                 break
-
         
         return total_reward

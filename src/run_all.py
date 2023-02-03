@@ -8,10 +8,10 @@ from skiing.interface import Skiing
 if __name__ == '__main__':
 
     games = [
-        Breakout(checkpoint='./pong/checkpoints/neat-checkpoint-289'),
+        # Breakout(checkpoint='./pong/checkpoints/pong-x-y/neat-checkpoint-293'),
         # Pong(),
         # Skiing(),
-        # Tennis(),
+        Tennis(net='./tennis/network/winner.pkl'),
     ]
 
     for game in games:

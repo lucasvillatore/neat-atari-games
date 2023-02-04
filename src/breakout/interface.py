@@ -34,20 +34,18 @@ class Breakout():
 
         player_y = 180
 
-        # ball_is_on_left = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
+        ball_is_on_left = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
 
-        # my_player_distance_to_ball = self.get_distance(
-        #     int(info['labels']['player_x']),
-        #     int(info['labels']['player_y']) - 32,
-        #     int(info['labels']['ball_x']),
-        #     int(info['labels']['ball_y']),
-        # )
-
-        input_net = [
+        my_player_distance_to_ball = self.get_distance(
             int(info['labels']['player_x']),
             player_y,
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
+        )
+
+        input_net = [
+            my_player_distance_to_ball,
+            ball_is_on_left,
         ]
 
         try:

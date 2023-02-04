@@ -16,7 +16,7 @@ class Pong():
         ball_direction = int(info['labels']['ball_direction'])
 
         if ball_direction < 10: # se conseguiu rebater
-            reward += 1 * 0.5
+            reward += 1 * 0.05
 
         if abs(int(info['labels']['player_x']) - int(info['labels']['ball_x'])) < 10:
             reward += 1 * 0.03
@@ -38,11 +38,17 @@ class Pong():
         if is_first_action:
             return 0
 
-        input_net = [
+        distance_to_ball = self.get_distance(
             int(info['labels']['player_x']),
             int(info['labels']['player_y']),
             int(info['labels']['ball_x']),
             int(info['labels']['ball_y']),
+        )
+        ball_is_on_left = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
+        
+        input_net = [
+            distance_to_ball,
+            ball_is_on_left
         ]
 
         try:

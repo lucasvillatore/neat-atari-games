@@ -3,49 +3,52 @@ import math
 import random
 
 class Breakout():
-    def __init__(self, net = None, checkpoint = None):
-        self.actions = {0: 'NOOP', 1: 'FIRE', 2: 'LEFT', 3: 'RIGHT'}
+    def __init__(self, folder, net = None, checkpoint = None):
+        self.folder = folder
         self.name = 'Breakout-v4'
-        self.neat_config_path = "./breakout/configs/neat-config"
-        self.folder = "./breakout"
+        self.neat_config_path = f"{self.folder}/neat-config"
         self.net = net
         self.checkpoint = checkpoint
-
-    def get_distance(self, player_x, player_y, ball_x, ball_y):
-        distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2)) 
-        
-        return distance
+        self.node_names = {
+            -1 : "ball_direction", 
+            0 : "NOOP",
+            1 : "FIRE",
+            2 : "UP",
+            3 : "RIGHT",
+            4 : "LEFT",
+            5 : "DOWN",
+            6 : "UPRIGHT",
+            7 : "UPLEFT",
+            8 : "DOWNRIGHT",
+            9 : "DOWNLEFT",
+            10 : "UPFIRE",
+            11 : "RIGHTFIRE",
+            12 : "LEFTFIRE",
+            13 : "DOWNFIRE",
+            14 : "UPRIGHTFIRE",
+            15 : "UPLEFTFIRE",
+            16 : "DOWNRIGHTFIRE",
+            17 : "DOWNLEFTFIRE",
+        }
 
     def calculate_fitness(self, info, reward):
 
-        player_y = 180
+        # player_y = 180
         if abs(int(info['labels']['player_x']) - int(info['labels']['ball_x'])) < 10:
             reward += 1 * 0.03
-        
-        if abs(player_y - int(info['labels']['ball_y'])) < 15:
-            reward += 1 * 0.05
 
         return reward
 
     def get_action(self, observation_space, net, step, info):
         is_first_action = step == 0
+
         if is_first_action:
             return 1
 
-        player_y = 180
-
-        ball_is_on_left = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
-
-        my_player_distance_to_ball = self.get_distance(
-            int(info['labels']['player_x']),
-            player_y,
-            int(info['labels']['ball_x']),
-            int(info['labels']['ball_y']),
-        )
+        ball_is_on_right = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
 
         input_net = [
-            my_player_distance_to_ball,
-            ball_is_on_left,
+            ball_is_on_right,
         ]
 
         try:

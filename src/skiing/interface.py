@@ -5,13 +5,13 @@ import time
 import cv2
 
 class Skiing():
-    def __init__(self, net = None, checkpoint = None):
-        self.actions = {}
+    def __init__(self, folder, net = None, checkpoint = None):
+        self.folder = folder
         self.name = 'Skiing-v4'
-        self.neat_config_path = "./skiing/configs/neat-config"
-        self.folder = "./skiing"
+        self.neat_config_path = f"{self.folder}/neat-config"
         self.net = net
         self.checkpoint = checkpoint
+        self.node_names = {-1 : "flag_is_on_right", 0: "noop", 1 : "right", 2: "left"}
 
     def calculate_fitness(self, info, reward, observation_space):
 
@@ -55,16 +55,10 @@ class Skiing():
 
         flag_x, flag_y = self.get_flag_coordinates(observation_space)
 
-        print(f"flag ({flag_x},{flag_y})")
-        print(f"player ({int(info['labels']['player_x'])},{int(info['labels']['player_y'])})")
+        flag_is_on_right = 0 if flag_x > info['labels']['player_x'] else 1
 
-        import time
-        time.sleep(0.5)
         input_net = [
-            int(info['labels']['player_x']),
-            int(info['labels']['player_y']),
-            flag_x,
-            flag_y,
+            flag_is_on_right
         ]
         try:
             output = net.activate(input_net)
@@ -72,10 +66,10 @@ class Skiing():
         except Exception as err:
             action = 0
         
-        if action in (2, 4, 7):
-            return 0
-        if action in (3, 5, 8):
-            return 0
+        if action in (2, 4):
+            return 1
+        if action in (3, 5):
+            return 2
 
         return 0
         

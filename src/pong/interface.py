@@ -4,13 +4,33 @@ import random
 import time
 
 class Pong():
-    def __init__(self, net = None, checkpoint = None):
-        self.actions = {}
-        self.name = 'Pong-v4'
-        self.neat_config_path = "./pong/configs/neat-config"
-        self.folder = "./pong"
+    def __init__(self, folder, net = None, checkpoint = None):
+        self.folder = folder
+        self.neat_config_path = f"{self.folder}/neat-config"
         self.net = net
         self.checkpoint = checkpoint
+        self.name = 'Pong-v4'
+        self.node_names = {
+            -1 : "ball_direction", 
+            0 : "NOOP",
+            1 : "FIRE",
+            2 : "UP",
+            3 : "RIGHT",
+            4 : "LEFT",
+            5 : "DOWN",
+            6 : "UPRIGHT",
+            7 : "UPLEFT",
+            8 : "DOWNRIGHT",
+            9 : "DOWNLEFT",
+            10 : "UPFIRE",
+            11 : "RIGHTFIRE",
+            12 : "LEFTFIRE",
+            13 : "DOWNFIRE",
+            14 : "UPRIGHTFIRE",
+            15 : "UPLEFTFIRE",
+            16 : "DOWNRIGHTFIRE",
+            17 : "DOWNLEFTFIRE",
+        }
 
     def calculate_fitness(self, info, reward, last_ball_direction):
         ball_direction = int(info['labels']['ball_direction'])
@@ -18,18 +38,10 @@ class Pong():
         if ball_direction < 10: # se conseguiu rebater
             reward += 1 * 0.05
 
-        if abs(int(info['labels']['player_x']) - int(info['labels']['ball_x'])) < 10:
-            reward += 1 * 0.03
-
         if abs(int(info['labels']['player_y']) - int(info['labels']['ball_y'])) < 10:
             reward += 1 * 0.05
 
         return reward
-
-    def get_distance(self, player_x, player_y, ball_x, ball_y):
-        distance = math.sqrt(math.pow(player_x - ball_x, 2) + math.pow(player_y - ball_y, 2))
-
-        return distance
 
     def get_action(self, observation_space, net, step, info):
 
@@ -38,17 +50,10 @@ class Pong():
         if is_first_action:
             return 0
 
-        distance_to_ball = self.get_distance(
-            int(info['labels']['player_x']),
-            int(info['labels']['player_y']),
-            int(info['labels']['ball_x']),
-            int(info['labels']['ball_y']),
-        )
-        ball_is_on_left = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
+        ball_is_upper = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
         
         input_net = [
-            distance_to_ball,
-            ball_is_on_left
+            ball_is_upper
         ]
 
         try:
@@ -56,6 +61,7 @@ class Pong():
             action = np.argmax(output)
         except Exception as err:
             action = 0
+
 
         return action
 
@@ -65,9 +71,7 @@ class Pong():
         game_information = {}
         total_reward = 0.0
 
-        last_ball_direction = 0
 
-        action = 0
         for current_step in range(steps):
             action = self.get_action(observation_space, net, current_step, game_information)
 
@@ -80,9 +84,11 @@ class Pong():
             if done:
                 break
 
-        total_reward += game_information['labels']['enemy_score'] * -1 * 5 + game_information['labels']['player_score'] * 2
+        total_reward += game_information['labels']['enemy_score'] * -1 * 2 + game_information['labels']['player_score'] * 2
         total_reward += game_information['frame_number'] * 0.0001
 
         if total_reward < 0:
             total_reward = 0
+
         return total_reward
+

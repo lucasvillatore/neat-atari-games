@@ -4,7 +4,7 @@ import gym
 import os
 from dotenv import load_dotenv
 from common import visualize
-from common.atariari.benchmark.wrapper import AtariARIWrapper
+from common.wrapper import AtariARIWrapper
 import pickle
 from pong.interface import Pong
 from breakout.interface import Breakout
@@ -58,20 +58,22 @@ def train_network():
         pop = neat.Checkpointer.restore_checkpoint(game.checkpoint)
         print(f"Checkpoint {game.checkpoint} loaded")
 
-    pop.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    pop.add_reporter(stats)
-    pop.add_reporter(neat.Checkpointer(100, filename_prefix=f"{game.folder}/checkpoints/neat-checkpoint-"))
+    if not trainer_config.render:
+        pop.add_reporter(neat.StdOutReporter(True))
+        stats = neat.StatisticsReporter()
+        pop.add_reporter(stats)
+        pop.add_reporter(neat.Checkpointer(1, filename_prefix=f"{game.folder}/checkpoints/neat-checkpoint-"))
 
     winner = run_trainer(pop)
 
-    stats.save_genome_fitness(filename=f"{game.folder}/statistics/fitness_history.csv")
-    visualize.draw_net(neat_configuration, winner, filename=f"{game.folder}/graphs/{game.name}-net")
-    visualize.plot_stats(stats, ylog=False, filename=f"{game.folder}/graphs/{game.name}-avg_fitness.svg")
-    visualize.plot_species(stats, filename=f"{game.folder}/graphs/{game.name}-speciation.svg")
+    if not trainer_config.render:
+        stats.save_genome_fitness(filename=f"{game.folder}/statistics/fitness_history.csv")
+        visualize.draw_net(neat_configuration, winner, filename=f"{game.folder}/graphs/{game.name}-net", node_names=game.node_names)
+        visualize.plot_stats(stats, ylog=False, filename=f"{game.folder}/graphs/{game.name}-avg_fitness.svg")
+        visualize.plot_species(stats, filename=f"{game.folder}/graphs/{game.name}-speciation.svg")
 
-    with open(f'{game.folder}/network/winner.pkl', 'wb') as output:
-        pickle.dump(winner, output, 1)
+        with open(f'{game.folder}/network/winner.pkl', 'wb') as output:
+            pickle.dump(winner, output, 1)
 
 def run_trainer(trainer_population):
     running_in_multiples_cores = int(trainer_config.num_cores) == 1

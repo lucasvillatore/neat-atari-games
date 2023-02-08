@@ -10,25 +10,14 @@ class Breakout():
         self.net = net
         self.checkpoint = checkpoint
         self.node_names = {
-            -1 : "ball_direction", 
+            -1 : "player_x", 
+            -2 : "player_y", 
+            -3 : "ball_x", 
+            -4 : "ball_y", 
             0 : "NOOP",
             1 : "FIRE",
-            2 : "UP",
-            3 : "RIGHT",
-            4 : "LEFT",
-            5 : "DOWN",
-            6 : "UPRIGHT",
-            7 : "UPLEFT",
-            8 : "DOWNRIGHT",
-            9 : "DOWNLEFT",
-            10 : "UPFIRE",
-            11 : "RIGHTFIRE",
-            12 : "LEFTFIRE",
-            13 : "DOWNFIRE",
-            14 : "UPRIGHTFIRE",
-            15 : "UPLEFTFIRE",
-            16 : "DOWNRIGHTFIRE",
-            17 : "DOWNLEFTFIRE",
+            2 : "RIGHT",
+            3 : "LEFT",
         }
 
     def calculate_fitness(self, info, reward):
@@ -48,7 +37,10 @@ class Breakout():
         ball_is_on_right = 0 if int(info['labels']['ball_x']) > int(info['labels']['player_x']) else 1
 
         input_net = [
-            ball_is_on_right,
+            int(info['labels']['player_x']),
+            int(info['labels']['player_y']),
+            int(info['labels']['ball_x']),
+            int(info['labels']['ball_y']),
         ]
 
         try:

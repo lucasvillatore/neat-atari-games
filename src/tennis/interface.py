@@ -9,13 +9,16 @@ class Tennis():
         self.net = net
         self.checkpoint = checkpoint
         self.node_names = {
-            -1 : "ball_direction", 
+            -1 : "player_x", 
+            -2 : "player_y", 
+            -3 : "ball_x", 
+            -4 : "ball_y", 
             0 : "NOOP",
             1 : "FIRE",
-            2 : "UP",
-            3 : "RIGHT",
-            4 : "LEFT",
-            5 : "DOWN",
+            2 : "RIGHT",
+            3 : "LEFT",
+            4 : "RIGHTFIRE",
+            5 : "LEFTRIGHTFIRE",
             6 : "UPRIGHT",
             7 : "UPLEFT",
             8 : "DOWNRIGHT",
@@ -65,7 +68,10 @@ class Tennis():
         ball_is_on_right = 0 if int(info['labels']['ball_x']) > player_x else 1
 
         input_net = [
-            ball_is_on_right
+            player_x, 
+            player_y,
+            int(info['labels']['ball_x']),
+            int(info['labels']['ball_y'])
         ]
 
         try:

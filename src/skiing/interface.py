@@ -20,45 +20,45 @@ class Skiing():
         if reward < 0:
             reward = 0
 
-        if abs(int(info['labels']['player_x']) - flag_x) < 10:
-            reward += 1 * 0.05
-        if abs(int(info['labels']['player_y']) - flag_y) < 10:
-            reward += 1 * 0.02
-        
+        # print(flag_x, flag_y)
+        # time.sleep(0.3)
+        if flag_x > int(info['labels']['player_x']) >= flag_x + 20 and 155 > flag_y > 170 :
+            reward += 1
 
         return reward
 
     def get_flag_coordinates(self, observation_space):
         index = 0
         for i in range(80, 86):
-            if observation_space[i] == 0 or observation_space[i] == 7 :
+            if observation_space[i] == 0:
                 flag_x = int(observation_space[64 + index])
                 flag_y = int(observation_space[87 + index])
 
-                if flag_y > 120:
-                    continue
-                break
+                return flag_x, flag_y
             else:
                 index += 1
                 flag_x = 0
                 flag_y = 0
         
-        return flag_x + 15, flag_y
+        return flag_x, flag_y
 
 
-    def get_action(self, observation_space, net, step, info):
+    def get_action(self, observation_space, net, step, info, is_stagned):
 
-        is_first_action = step < 15
+        is_first_action = step == 0
         
         if is_first_action:
             return 0
 
         flag_x, flag_y = self.get_flag_coordinates(observation_space)
 
-        flag_is_on_right = 0 if flag_x > info['labels']['player_x'] else 1
+        flag_is_on_right = 0 if flag_x + 10 > int(info['labels']['player_x']) else 1
+        # print(flag_is_on_right)
+        # time.sleep(0.3)
 
         input_net = [
-            flag_is_on_right
+            flag_is_on_right,
+            #is_stagned
         ]
         try:
             output = net.activate(input_net)
@@ -66,6 +66,9 @@ class Skiing():
         except Exception as err:
             action = 0
         
+        # return 0
+        # return action
+
         if action in (2, 4):
             return 1
         if action in (3, 5):
@@ -81,16 +84,31 @@ class Skiing():
 
         action = 0
 
+        stagnation = 0
+        tempo_mesmo_y = 0
+        mesmo_obj = observation_space[80]
         for current_step in range(steps):
 
-            action = self.get_action(observation_space, net, current_step, game_information)
+            action = self.get_action(observation_space, net, current_step, game_information, tempo_mesmo_y)
 
             observation_space, current_reward, done, game_information = env.step(action)
+
+            if observation_space[80] == mesmo_obj:
+                stagnation += 1
+            else:
+                mesmo_obj = observation_space[80]
+                stagnation = 0
+                tempo_mesmo_y = 0
+
+            if stagnation >= 20:
+                tempo_mesmo_y = 1
 
             total_reward += self.calculate_fitness(game_information, current_reward, observation_space)
 
             if done:
                 break
-
+        # total_reward += - tempo_mesmo_y * 0.05
         
+        # if total_reward < 0:
+        #     total_reward = 0
         return total_reward

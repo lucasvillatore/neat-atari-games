@@ -1,0 +1,12 @@
+digraph {
+	node [fontsize=9 height=0.2 shape=circle width=0.2]
+	flag_is_on_right [fillcolor=lightgray shape=box style=filled]
+	noop [fillcolor=lightblue style=filled]
+	right [fillcolor=lightblue style=filled]
+	left [fillcolor=lightblue style=filled]
+	252 [fillcolor=white style=filled]
+	right -> right [color=red penwidth=0.31392448512666343 style=solid]
+	left -> 252 [color=green penwidth=0.11623501302518102 style=dotted]
+	right -> 252 [color=green penwidth=0.5271230056562705 style=solid]
+	252 -> 252 [color=green penwidth=0.4838679872501508 style=solid]
+}

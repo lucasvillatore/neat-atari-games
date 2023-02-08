@@ -11,13 +11,16 @@ class Pong():
         self.checkpoint = checkpoint
         self.name = 'Pong-v4'
         self.node_names = {
-            -1 : "ball_direction", 
+            -1 : "player_x", 
+            -2 : "player_y", 
+            -3 : "ball_x", 
+            -4 : "ball_y", 
             0 : "NOOP",
             1 : "FIRE",
-            2 : "UP",
-            3 : "RIGHT",
-            4 : "LEFT",
-            5 : "DOWN",
+            2 : "RIGHT",
+            3 : "LEFT",
+            4 : "RIGHTFIRE",
+            5 : "LEFTRIGHTFIRE",
             6 : "UPRIGHT",
             7 : "UPLEFT",
             8 : "DOWNRIGHT",
@@ -53,7 +56,10 @@ class Pong():
         ball_is_upper = 1 if int(info['labels']['ball_y']) > int(info['labels']['player_y']) else 0
         
         input_net = [
-            ball_is_upper
+            int(info['labels']['player_x']),
+            int(info['labels']['player_y']),
+            int(info['labels']['ball_x']),
+            int(info['labels']['ball_y']),
         ]
 
         try:

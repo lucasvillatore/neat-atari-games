@@ -8,13 +8,16 @@ from skiing.interface import Skiing
 if __name__ == '__main__':
 
     games = [
-        # Pong(folder='./pong/pong_x_y'),
+        Pong(
+            folder='./pong/pong_y', 
+        #    checkpoint='./pong/pong_y/checkpoints/neat-checkpoint-29'
+        ),
         # Breakout(
         #     folder='./breakout/breakout_x_y', 
         # ),
-        Tennis(
-            folder="./tennis/tennis_x_y",
-        ),
+        # Tennis(
+        #     folder="./tennis/tennis_x_y",
+        # ),
         # Skiing(
         #     folder='./skiing/skiing_x',
         #     checkpoint='./pong/pong_y/checkpoints/neat-checkpoint-29'

@@ -35,9 +35,22 @@ def run(game_instance):
     trainer_config = TrainerConfig(game=game_instance.name, neat_config_path=game_instance.neat_config_path)
 
     if trainer_config.render:
-        environment = AtariARIWrapper(gym.make(trainer_config.game, render_mode="human", obs_type="ram", full_action_space=True))
+        environment = AtariARIWrapper(
+            gym.make(
+                trainer_config.game, 
+                render_mode="human", 
+                obs_type="ram", 
+                full_action_space=game_instance.full_action_space
+            )
+        )
     else:
-        environment = AtariARIWrapper(gym.make(trainer_config.game, obs_type="ram", full_action_space=True))
+        environment = AtariARIWrapper(
+            gym.make(
+                trainer_config.game, 
+                obs_type="ram", 
+                full_action_space=game_instance.full_action_space
+                )
+            )
 
     game = game_instance
     
@@ -73,7 +86,8 @@ def train_network():
         visualize.plot_species(stats, filename=f"{game.folder}/graphs/{game.name}-speciation.svg")
 
         with open(f'{game.folder}/network/winner.pkl', 'wb') as output:
-            pickle.dump(winner, output, 1)
+            print('salvando')
+            pickle.dump(winner, output)
 
 def run_trainer(trainer_population):
     running_in_multiples_cores = int(trainer_config.num_cores) == 1

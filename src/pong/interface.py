@@ -53,28 +53,38 @@ class PongXY():
 
 class PongY():
     def get_inputs(self, info):
-        value = 8
-        if int(info['labels']['player_y']) - value > int(info['labels']['ball_y']) > int(info['labels']['player_y']) + value:
-            ball_direction = 1
-        elif int(info['labels']['ball_y'] + value > int(info['labels']['player_y'])): 
-            ball_direction = 2
-        else:
-            ball_direction = 0
+        ball_x = int(info['labels']['ball_x'])
+        ball_y = int(info['labels']['ball_y'])
+        player_y = int(info['labels']['player_y'])
 
-        return [ball_direction]
+        if ball_y > player_y: 
+            ball_left = 1
+            ball_right = 0
+            ball_out = 0
+        else:
+            ball_left = 0
+            ball_right = 1
+            ball_out = 0
+        
+        if ball_x in (0, 205):
+            ball_left = -1
+            ball_right = -1
+            ball_out = 1
+
+        return [ball_left, ball_right, ball_out]
 
     def get_action(self, action):
         return action
 
     def get_node_names(self, full_action_space):
 
-        node_names = {-1 : "ball_direction"}
+        node_names = {-1 : "ball_left", -2 : "ball_right", -3 : "ball_out_field"}
         node_names[0] = "NOOP"
         node_names[1] = "FIRE"
         node_names[2] = "RIGHT"
         node_names[3] = "LEFT"
-        node_names[4] = "RIGHTFIRE"
-        node_names[5] = "LEFTFIRE"
+        # node_names[4] = "RIGHTFIRE"
+        # node_names[5] = "LEFTFIRE"
 
         if not full_action_space:
             return node_names
@@ -111,14 +121,16 @@ class Pong():
         self.tmp = tmp
         self.node_names = self.tmp.get_node_names(full_action_space) 
 
-    def calculate_fitness(self, info, reward, last_ball_direction):
+    def calculate_fitness(self, info):
         ball_direction = int(info['labels']['ball_direction'])
 
-        if ball_direction < 10: # se conseguiu rebater
+        reward = 0
+        player_y = int(info['labels']['player_y'])
+        ball_y = int(info['labels']['ball_y'])
+
+        if abs(player_y - ball_y) < 20:
             reward += 1 * 0.05
 
-        if abs(int(info['labels']['player_y']) - int(info['labels']['ball_y'])) < 10:
-            reward += 1 * 0.05
 
         return reward
 
@@ -148,18 +160,14 @@ class Pong():
 
         for current_step in range(steps):
             action = self.get_action(observation_space, net, current_step, game_information)
-
             observation_space, current_reward, done, game_information = env.step(action)
-
-            last_ball_direction = game_information['labels']['ball_direction']
-
-            total_reward += self.calculate_fitness(game_information, current_reward, last_ball_direction)
+            total_reward += self.calculate_fitness(game_information)
 
             if done:
                 break
 
-        total_reward += game_information['labels']['enemy_score'] * -1 * 2 + game_information['labels']['player_score'] * 2
-        total_reward += game_information['frame_number'] * 0.0001
+        total_reward += game_information['labels']['player_score'] * 2
+        total_reward += current_step * 0.001
 
         if total_reward < 0:
             total_reward = 0

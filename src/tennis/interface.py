@@ -1,37 +1,171 @@
 import numpy as np
 import math
 
+
+class TennisXY:
+    def get_inputs(self, info):
+        return [
+            int(info['labels']['player_x']),
+            int(info['labels']['player_y']),
+            int(info['labels']['ball_x']),
+            int(info['labels']['ball_y']),
+        ]
+
+    def get_action(self, action):
+        return action
+
+    def get_node_names(self, full_action_space):
+
+        node_names = {-1 : "player_x", -2 : "player_y", -3 : "ball_x", -4 : "ball_y"}
+
+        node_names[0] = "NOOP"
+        node_names[1] = "FIRE"
+        node_names[2] = "RIGHT"
+        node_names[3] = "LEFT"
+        node_names[4] = "RIGHTFIRE"
+        node_names[5] = "LEFTRIGHTFIRE"
+        node_names[6] = "UPRIGHT"
+        node_names[7] = "UPLEFT"
+        node_names[8] = "DOWNRIGHT"
+        node_names[9] = "DOWNLEFT"
+        node_names[10] = "UPFIRE"
+        node_names[11] = "RIGHTFIRE"
+        node_names[12] = "LEFTFIRE"
+        node_names[13] = "DOWNFIRE"
+        node_names[14] = "UPRIGHTFIRE"
+        node_names[15] = "UPLEFTFIRE"
+        node_names[16] = "DOWNRIGHTFIRE"
+        node_names[17] = "DOWNLEFTFIRE"
+
+        return node_names
+
+class TennisPongXY:
+    def get_inputs(self, info):
+        return [
+            int(info['labels']['player_x']),
+            int(info['labels']['player_y']),
+            int(info['labels']['ball_x']),
+            int(info['labels']['ball_y']),
+        ]
+
+    def get_action(self, action):
+        return action
+
+    def get_node_names(self, full_action_space):
+
+        node_names = {-1 : "player_x", -2 : "player_y", -3 : "ball_x", -4 : "ball_y"}
+
+        node_names[0] = "NOOP"
+        node_names[1] = "FIRE"
+        node_names[2] = "RIGHT"
+        node_names[3] = "LEFT"
+        node_names[4] = "RIGHTFIRE"
+        node_names[5] = "LEFTRIGHTFIRE"
+        node_names[6] = "UPRIGHT"
+        node_names[7] = "UPLEFT"
+        node_names[8] = "DOWNRIGHT"
+        node_names[9] = "DOWNLEFT"
+        node_names[10] = "UPFIRE"
+        node_names[11] = "RIGHTFIRE"
+        node_names[12] = "LEFTFIRE"
+        node_names[13] = "DOWNFIRE"
+        node_names[14] = "UPRIGHTFIRE"
+        node_names[15] = "UPLEFTFIRE"
+        node_names[16] = "DOWNRIGHTFIRE"
+        node_names[17] = "DOWNLEFTFIRE"
+
+        return node_names
+
+class TennisX:
+    def get_inputs(self, info):
+        value = 8
+        if int(info['labels']['player_x']) - value > int(info['labels']['ball_x']) > int(info['labels']['player_x']) + value:
+            ball_direction = 1
+        elif int(info['labels']['ball_x'] + value > int(info['labels']['player_x'])): 
+            ball_direction = 2
+        else:
+            ball_direction = 0
+
+        return [ball_direction]
+
+    def get_action(self, action):
+        return action
+
+    def get_node_names(self, full_action_space):
+        node_names = {-1 : "ball_direction"}
+
+
+        node_names[0] = "NOOP"
+        node_names[1] = "FIRE"
+        node_names[2] = "RIGHT"
+        node_names[3] = "LEFT"
+        node_names[4] = "RIGHTFIRE"
+        node_names[5] = "LEFTRIGHTFIRE"
+        node_names[6] = "UPRIGHT"
+        node_names[7] = "UPLEFT"
+        node_names[8] = "DOWNRIGHT"
+        node_names[9] = "DOWNLEFT"
+        node_names[10] = "UPFIRE"
+        node_names[11] = "RIGHTFIRE"
+        node_names[12] = "LEFTFIRE"
+        node_names[13] = "DOWNFIRE"
+        node_names[14] = "UPRIGHTFIRE"
+        node_names[15] = "UPLEFTFIRE"
+        node_names[16] = "DOWNRIGHTFIRE"
+        node_names[17] = "DOWNLEFTFIRE"
+
+        return node_names
+
+class TennisPongY:
+    def get_inputs(self, info):
+        value = 8
+        if int(info['labels']['player_x']) - value > int(info['labels']['ball_x']) > int(info['labels']['player_x']) + value:
+            ball_direction = 1
+        elif int(info['labels']['ball_x'] + value > int(info['labels']['player_x'])): 
+            ball_direction = 2
+        else:
+            ball_direction = 0
+
+        return [ball_direction]
+
+    def get_action(self, action):
+        return action
+
+    def get_node_names(self, full_action_space):
+        node_names = {-1 : "ball_direction"}
+
+
+        node_names[0] = "NOOP"
+        node_names[1] = "FIRE"
+        node_names[2] = "RIGHT"
+        node_names[3] = "LEFT"
+        node_names[4] = "RIGHTFIRE"
+        node_names[5] = "LEFTRIGHTFIRE"
+        node_names[6] = "UPRIGHT"
+        node_names[7] = "UPLEFT"
+        node_names[8] = "DOWNRIGHT"
+        node_names[9] = "DOWNLEFT"
+        node_names[10] = "UPFIRE"
+        node_names[11] = "RIGHTFIRE"
+        node_names[12] = "LEFTFIRE"
+        node_names[13] = "DOWNFIRE"
+        node_names[14] = "UPRIGHTFIRE"
+        node_names[15] = "UPLEFTFIRE"
+        node_names[16] = "DOWNRIGHTFIRE"
+        node_names[17] = "DOWNLEFTFIRE"
+
+        return node_names
+
 class Tennis():
-    def __init__(self, folder, net = None, checkpoint = None):
+    def __init__(self,  folder, tmp, full_action_space = False, net = None, checkpoint = None):
+        self.full_action_space = full_action_space
         self.folder = folder
         self.name = 'Tennis-v4'
         self.neat_config_path = f"{self.folder}/neat-config"
         self.net = net
+        self.tmp = tmp
         self.checkpoint = checkpoint
-        self.node_names = {
-            -1 : "player_x", 
-            -2 : "player_y", 
-            -3 : "ball_x", 
-            -4 : "ball_y", 
-            0 : "NOOP",
-            1 : "FIRE",
-            2 : "RIGHT",
-            3 : "LEFT",
-            4 : "RIGHTFIRE",
-            5 : "LEFTRIGHTFIRE",
-            6 : "UPRIGHT",
-            7 : "UPLEFT",
-            8 : "DOWNRIGHT",
-            9 : "DOWNLEFT",
-            10 : "UPFIRE",
-            11 : "RIGHTFIRE",
-            12 : "LEFTFIRE",
-            13 : "DOWNFIRE",
-            14 : "UPRIGHTFIRE",
-            15 : "UPLEFTFIRE",
-            16 : "DOWNRIGHTFIRE",
-            17 : "DOWNLEFTFIRE",
-        }
+        self.node_names = self.tmp.get_node_names(self.full_action_space)
 
     def calculate_fitness(self, info, reward):
 
@@ -59,20 +193,10 @@ class Tennis():
 
         is_first_action = step == 0
 
-
         if is_first_action:
             return 1
 
-        player_x, player_y = self.get_player_coordinates(info)
-
-        ball_is_on_right = 0 if int(info['labels']['ball_x']) > player_x else 1
-
-        input_net = [
-            player_x, 
-            player_y,
-            int(info['labels']['ball_x']),
-            int(info['labels']['ball_y'])
-        ]
+        input_net = self.tmp.get_inputs(info)
 
         try:
             output = net.activate(input_net)
@@ -80,7 +204,7 @@ class Tennis():
         except Exception as err:
             action = 0
         
-        return action
+        return self.tmp.get_action(action)
         
     def run(self, net, env, steps):
 

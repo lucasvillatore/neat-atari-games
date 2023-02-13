@@ -1,18 +1,31 @@
 
 from trainer import run
 from pong.interface import Pong, PongXY, PongY
-from breakout.interface import Breakout, BreakoutX, BreakoutXY, BreakoutPongXY, BreakoutPongY
-from tennis.interface import Tennis
+from breakout.interface import Breakout, BreakoutX, BreakoutXY
+from tennis.interface import Tennis, TennisXY, TennisX, TennisPongXY, TennisPongY
 from skiing.interface import Skiing
 
 if __name__ == '__main__':
 
     games = [
         Pong(
-            folder='./pong/pong_testes_neat', 
-            full_action_space=True,
-            tmp=PongY()
+            folder='./pong/pong_x_y', 
+            full_action_space=False,
+            tmp=PongXY(),
         ),
+        # Breakout(
+        #     folder='./breakout/breakout_pong_y_full_action_space', 
+        #     full_action_space=True,
+        #     tmp=BreakoutX(),
+        #     # checkpoint='./pong/pong_y_full_action_space/checkpoints/neat-checkpoint-29',
+        #     # net='./breakout/breakout_pong_y_full_action_space/network/winner.pkl',
+        # ),
+        # Breakout(
+        #     folder='./breakout/breakout_x full_action_space', 
+        #     full_action_space=True,
+        #     tmp=BreakoutX(),
+        #     # net='./breakout/breakout_x/network/winner.pkl',
+        # ),
         # Pong(
         #     folder='./pong/pong_x_y', 
         #     full_action_space=False,
@@ -34,26 +47,21 @@ if __name__ == '__main__':
         #     tmp=BreakoutPongXY(),
         #     checkpoint='./pong/pong_x_y/checkpoints/neat-checkpoint-499'
         # ),
-        # Breakout(
-        #     folder='./breakout/breakout_x', 
-        #     full_action_space=False,
-        #     tmp=BreakoutX()
-        # ),
+        
         # Breakout(
         #     folder='./breakout/breakout_pong_y', 
         #     full_action_space=False,
         #     tmp=BreakoutPongY(),
-        #     checkpoint='./pong/pong_y/checkpoints/neat-checkpoint-499'
+        #     checkpoint='./pong/pong_y/checkpoints/neat-checkpoint-49'
         # ),
         # Breakout(
         #     folder='./breakout/breakout_pong_y_full_action_space', 
         #     full_action_space=True,
-        #     tmp=BreakoutPongY(),
-        #     checkpoint='./pong/pong_y_full_action_space/checkpoints/neat-checkpoint-445'
         # ),
         # Tennis(
-        #     folder="./tennis/tennis_x_y",
-        #     full_action_space=False
+        #     folder="./tennis/tenis_x",
+        #     full_action_space=False,
+        #     tmp=TennisX(),
         # ),
         # Tennis(
         #     folder="./tennis/tennis_pong_x_y",

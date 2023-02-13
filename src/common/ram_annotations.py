@@ -233,6 +233,7 @@ atari_dict = {
                    clock_s=105,
                    clock_ms=106,
                    score=107,
+                   angle=21,
                    object_y=range(87, 94),  # object_y_1 is y position of whatever topmost object on the screen is
                    object_x=range(63, 70),  # object_y_1 is y position of whatever topmost object on the screen is
                    object_type=range(80, 86)),  # object_y_1 is y position of whatever topmost object on the screen is

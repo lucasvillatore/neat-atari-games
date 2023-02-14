@@ -57,28 +57,26 @@ class PongY():
         ball_y = int(info['labels']['ball_y'])
         player_y = int(info['labels']['player_y'])
 
-        if ball_y > player_y: 
-            ball_left = 1
-            ball_right = 0
+        if ball_y <= player_y: 
+            ball_direction = 1
             ball_out = 0
         else:
-            ball_left = 0
-            ball_right = 1
+            ball_direction = 0
             ball_out = 0
         
         if ball_x in (0, 205):
-            ball_left = -1
-            ball_right = -1
+            ball_direction = -1
             ball_out = 1
 
-        return [ball_left, ball_right, ball_out]
+        # print([ball_direction, ball_out])
+        return [ball_direction, ball_out]
 
     def get_action(self, action):
         return action
 
     def get_node_names(self, full_action_space):
 
-        node_names = {-1 : "ball_left", -2 : "ball_right", -3 : "ball_out_field"}
+        node_names = {-1 : "ball_direction", -2 : "ball_out_field"}
         node_names[0] = "NOOP"
         node_names[1] = "FIRE"
         node_names[2] = "RIGHT"

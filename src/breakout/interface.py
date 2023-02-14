@@ -1,7 +1,7 @@
 import numpy as np
 
 class BreakoutXY():
-    def get_inputs(self, info):
+    def get_inputs(self, info, ball_out):
         return [
             int(info['labels']['player_x']),
             int(info['labels']['player_y']),

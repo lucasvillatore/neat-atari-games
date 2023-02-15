@@ -1,7 +1,4 @@
 import numpy as np
-import math
-import random
-import time
 
 class PongXY():
     def get_inputs(self, info):
@@ -24,8 +21,6 @@ class PongXY():
         node_names[1] = "FIRE"
         node_names[2] = "RIGHT"
         node_names[3] = "LEFT"
-        node_names[4] = "RIGHTFIRE"
-        node_names[5] = "LEFTFIRE"
 
         if not full_action_space:
             return node_names
@@ -58,31 +53,31 @@ class PongY():
         player_y = int(info['labels']['player_y'])
 
         if ball_y <= player_y: 
-            ball_direction = 1
+            ball_left = 1
+            ball_right = 0
             ball_out = 0
         else:
-            ball_direction = 0
+            ball_left = 0
+            ball_right = 1
             ball_out = 0
         
         if ball_x in (0, 205):
-            ball_direction = -1
+            ball_left = -1
+            ball_right = -1
             ball_out = 1
 
-        # print([ball_direction, ball_out])
-        return [ball_direction, ball_out]
+        return [ball_left, ball_right, ball_out]
 
     def get_action(self, action):
         return action
 
     def get_node_names(self, full_action_space):
 
-        node_names = {-1 : "ball_direction", -2 : "ball_out_field"}
+        node_names = {-1 : "ball_left", -2 : "ball_right", -3 : "ball_out_field"}
         node_names[0] = "NOOP"
         node_names[1] = "FIRE"
         node_names[2] = "RIGHT"
         node_names[3] = "LEFT"
-        # node_names[4] = "RIGHTFIRE"
-        # node_names[5] = "LEFTFIRE"
 
         if not full_action_space:
             return node_names
@@ -120,8 +115,6 @@ class Pong():
         self.node_names = self.tmp.get_node_names(full_action_space) 
 
     def calculate_fitness(self, info):
-        ball_direction = int(info['labels']['ball_direction'])
-
         reward = 0
         player_y = int(info['labels']['player_y'])
         ball_y = int(info['labels']['ball_y'])

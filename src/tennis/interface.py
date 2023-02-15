@@ -3,7 +3,7 @@ import math
 
 
 class TennisXY:
-    def get_inputs(self, info):
+    def get_inputs(self, info, ball_out):
         return [
             int(info['labels']['player_x']),
             int(info['labels']['player_y']),
@@ -47,20 +47,23 @@ class TennisX:
 
         if ball_x <= player_x: 
             ball_direction = 1
+            ball_right = 0
         else:
             ball_direction = 0
+            ball_right = 1
         
-        if (ball_x == 77 and ball_y == 142) or (ball_x == 119 and ball_y == 7) or (ball_x == 2 and ball_y == 161): 
+        if ball_out > 0:
             ball_direction = -1
+            ball_right = -1
             ball_out = ball_out
 
-        return [ball_direction, ball_out]
+        return [ball_direction, ball_right, ball_out]
 
     def get_action(self, action):
         return action
 
     def get_node_names(self, full_action_space):
-        node_names = {-1 : "ball_left", -2: "ball_out"}
+        node_names = {-1 : "ball_left", -2: "ball_right", -3 :"ball_out"}
 
 
         node_names[0] = "NOOP"
@@ -96,7 +99,7 @@ class Tennis():
         self.checkpoint = checkpoint
         self.node_names = self.tmp.get_node_names(self.full_action_space)
 
-    def calculate_fitness(self, info):
+    def calculate_fitness(self, info, ball_out):
 
         player_x, player_y = self.get_player_coordinates(info)
 
@@ -104,11 +107,11 @@ class Tennis():
         ball_x = int(info['labels']['ball_x'])
         ball_y = int(info['labels']['ball_y'])
 
-        if (ball_x == 77 and ball_y == 142) or (ball_x == 119 and ball_y == 7):
+        if ball_out > 0:
             return 0
         
         if abs(player_x - ball_x) < 15:
-            reward += 1 * 0.003
+            reward += 1 * 0.05
 
         return reward
 
@@ -149,37 +152,52 @@ class Tennis():
         rebater = 0
 
         ball_out = 0
+        out_game = 0
+        game_information = {}
+        game_information['labels'] = {}
+        game_information['labels']['ball_x'] = 0
+        game_information['labels']['ball_y'] = 0
+
+        current_x, current_y = [0, 0]
         in_game = 0
         for current_step in range(steps):
             action = self.get_action(net, current_step, game_information, ball_out)
 
+
+            current_x = int(game_information['labels']['ball_x'])
             observation_space, current_reward, done, game_information = env.step(action)
 
             ball_x = int(game_information['labels']['ball_x'])
-            ball_y = int(game_information['labels']['ball_y'])
 
-            if (ball_x == 77 and ball_y == 142) or (ball_x == 119 and ball_y == 7) or (ball_x == 2 and ball_y == 161):
-                ball_out += 1
+            if ball_x == current_x:
+                out_game += 1
             else:
                 in_game += 1
+                out_game = 0
                 ball_out = 0
 
-                if game_information['labels']['ball_direction'] != ball_direction:
-                    rebater += 1  * 0.03
-                    ball_direction = game_information['labels']['ball_direction']
-                
-                total_reward += self.calculate_fitness(game_information)
+            if out_game > 20:
+                ball_out += 1
+
+            if game_information['labels']['ball_direction'] != ball_direction:
+                rebater += 1  * 0.06
+                ball_direction = game_information['labels']['ball_direction']
+            
+            total_reward += self.calculate_fitness(game_information, ball_out)
 
 
             if done:
                 break
         
-        # print()
-        # print()
-        # print("reward rebater {}".format(rebater))
-        # print("reward aproximacao x {}".format(total_reward))
-        # print("reward in game {}".format(in_game * 0.05 ))
-        total_reward += rebater + in_game * 0.05
+        
+        # if rebater + total_reward + in_game * 0.005 > 60:
+
+        #     print()
+        #     print()
+        #     print("reward rebater {}".format(rebater))
+        #     print("reward aproximacao x {}".format(total_reward))
+        #     print("reward in game {}".format(in_game * 0.005))
+        total_reward += rebater + in_game * 0.01 + game_information['labels']['player_score'] * 2
 
         if total_reward < 0:
             total_reward = 0

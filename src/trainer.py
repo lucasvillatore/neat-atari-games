@@ -7,9 +7,7 @@ from common import visualize
 from common.wrapper import AtariARIWrapper
 import pickle
 from pong.interface import Pong
-from breakout.interface import Breakout
 from tennis.interface import Tennis
-from skiing.interface import Skiing
 
 
 
@@ -125,20 +123,3 @@ def simulate_species(net, episodes=1, steps=5000):
     print("Species fitness: %s" % str(fitness))
     
     return fitness
-
-
-def get_game(name):
-
-    games_dict = {
-        'breakout': Breakout(),
-        'pong': Pong(),
-        'tennis': Tennis(),
-        'skiing': Skiing()
-    }
-
-    return games_dict[name] 
-
-if __name__ == '__main__':
-    game_instance = get_game(os.environ['GAME'])
-
-    run(game_instance)

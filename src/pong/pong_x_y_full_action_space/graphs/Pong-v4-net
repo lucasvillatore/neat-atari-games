@@ -1,0 +1,16 @@
+digraph {
+	node [fontsize=9 height=0.2 shape=circle width=0.2]
+	player_x [fillcolor=lightgray shape=box style=filled]
+	player_y [fillcolor=lightgray shape=box style=filled]
+	ball_x [fillcolor=lightgray shape=box style=filled]
+	ball_y [fillcolor=lightgray shape=box style=filled]
+	NOOP [fillcolor=lightblue style=filled]
+	FIRE [fillcolor=lightblue style=filled]
+	RIGHT [fillcolor=lightblue style=filled]
+	LEFT [fillcolor=lightblue style=filled]
+	117 [fillcolor=white style=filled]
+	ball_y -> RIGHT [color=red penwidth=0.45287727552895884 style=dotted]
+	ball_y -> 117 [color=green penwidth=0.30000000000000004 style=solid]
+	117 -> RIGHT [color=green penwidth=0.11352580902677332 style=solid]
+	ball_x -> LEFT [color=green penwidth=0.11512454085212818 style=solid]
+}

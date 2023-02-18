@@ -7,51 +7,105 @@ if __name__ == '__main__':
 
     games = [
         # Pong(
-        #     folder='./pong/pong_x_y', 
-        #     full_action_space=False,
-        #     tmp=PongXY(),
-        # ),
-        # Pong(
-        #     folder='./pong/pong_x_y_full_action_space', 
-        #     full_action_space=True,
-        #     tmp=PongXY(),
-        # ),
-        # Pong(
-        #     folder='./pong/pong_y', 
+        #     folder='./pong/pong_activation_default_cube', 
         #     full_action_space=False,
         #     tmp=PongY(),
         # ),
         # Pong(
-        #     folder='./pong/pong_y_full_action_space', 
-        #     full_action_space=True,
+        #     folder='./pong/pong_activation_default_exp', 
+        #     full_action_space=False,
         #     tmp=PongY(),
         # ),
-
-        Breakout(
-            folder='./breakout/breakout_x_full_action_space',
-            full_action_space=True,
-            tmp=BreakoutX(),
-        ),
-
-        Breakout(
-            folder='./breakout/breakout_x_y_full_action_space',
-            full_action_space=True,
-            tmp=BreakoutXY(),
-        ),
-
-        # Breakout(
-        #     folder='./breakout/breakout_pong_y_full_action_space',
-        #     full_action_space=True,
-        #     tmp=BreakoutX(),
-        #     checkpoint='./pong/pong_y_full_action_space/checkpoints/neat-checkpoint-49'
+        # Pong(
+        #     folder='./pong/pong_activation_default_relu', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
         # ),
-
-        # Breakout(
-        #     folder='./breakout/breakout_pong_x_y_full_action_space',
-        #     full_action_space=True,
-        #     tmp=BreakoutXY(),
-        #     checkpoint='./pong/pong_x_y_full_action_space/checkpoints/neat-checkpoint-49'
+        # Pong(
+        #     folder='./pong/pong_activation_default_sigmoid', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
         # ),
+        # Pong(
+        #     folder='./pong/pong_activation_default_tanh', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
+        # ),
+        # Pong(
+        #     folder='./pong/pong_compatibility_threshold_1.0', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
+        # ),
+        # Pong(
+        #     folder='./pong/pong_compatibility_threshold_2.0', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
+        # ),
+        # Pong(
+        #     folder='./pong/pong_compatibility_threshold_3.0', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
+        # ),
+        # Pong(
+        #     folder='./pong/pong_compatibility_threshold_4.0', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
+        # ),
+        # Pong(
+        #     folder='./pong/pong_compatibility_threshold_6.0', 
+        #     full_action_space=False,
+        #     tmp=PongY(),
+        # ),
+        Pong(
+            folder='./pong/pong_initial_connection_full_direct', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_initial_connection_unconnected', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_num_hidden_0', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_num_hidden_3', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_num_hidden_6', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_num_hidden_9', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_pop_size_50', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_pop_size_150', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_pop_size_300', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
+        Pong(
+            folder='./pong/pong_pop_size_600', 
+            full_action_space=False,
+            tmp=PongY(),
+        ),
     ]
 
     for game in games:

@@ -1,0 +1,18 @@
+digraph {
+	node [fontsize=9 height=0.2 shape=circle width=0.2]
+	ball_left [fillcolor=lightgray shape=box style=filled]
+	ball_right [fillcolor=lightgray shape=box style=filled]
+	ball_out_field [fillcolor=lightgray shape=box style=filled]
+	NOOP [fillcolor=lightblue style=filled]
+	FIRE [fillcolor=lightblue style=filled]
+	RIGHT [fillcolor=lightblue style=filled]
+	LEFT [fillcolor=lightblue style=filled]
+	193 [fillcolor=white style=filled]
+	194 [fillcolor=white style=filled]
+	195 [fillcolor=white style=filled]
+	196 [fillcolor=white style=filled]
+	197 [fillcolor=white style=filled]
+	198 [fillcolor=white style=filled]
+	201 [fillcolor=white style=filled]
+	NOOP -> 195 [color=red penwidth=0.5830628003609364 style=dotted]
+}

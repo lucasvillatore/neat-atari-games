@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 echo $1 $2
 
 first_folder="${1/.\//}"
